@@ -1,0 +1,406 @@
+﻿@{
+	ViewData["Title"] = "Production";
+	Layout = "~/Views/Shared/Productionlayout.cshtml";
+};
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+<style>
+	.font_SIZE {
+		font-size: 0.9rem;
+	}
+
+	label {
+		font-weight: bold;
+		display: none;
+	}
+
+	.form-select-sm {
+		width: 150px;
+	}
+
+	.btn_bg {
+		background-color: #0097d7;
+		font-weight: 500;
+	}
+
+	.btn_bg:hover {
+		background-color: #1474A4;
+	}
+
+	.text {
+		color: #1474A4;
+	}
+
+	.custom-dropdown select {
+		width: 220px;
+		height: 42px;
+		font-size: 14px;
+		padding: 10px 30px;
+	}
+
+	.dt-column-order {
+		display: none;
+	}
+
+	.custom-table {
+		border-radius: 8px;
+		overflow: hidden;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		background-color: #ffffff;
+	}
+
+	.custom-table tbody tr:nth-child(odd) {
+		background-color: #f2f2f2;
+	}
+
+	.custom-table tbody tr:nth-child(even) {
+		background-color: #ffffff;
+	}
+
+	.custom-table tbody tr:hover {
+		background-color: #e9ecef;
+	}
+
+	.custom-table th,
+	.custom-table td {
+		vertical-align: middle;
+		padding: 0.75rem;
+		border: 1px solid #dee2e6;
+	}
+
+	.custom-table thead {
+		background-color: #f8f9fa;
+		font-weight: 600;
+	}
+
+	@@media screen and (max-width: 866px) {
+		#desktopView {
+			display: none !important;
+		}
+
+		#MobileView {
+			display: block !important;
+		}
+	}
+</style>
+
+<div class="overflow-hidden" id="desktopView">
+	<div class="ps-0">
+		<div class="">
+			<div class="text-black">
+				<div class="d-flex align-items-center flex-wrap gap-2">
+					<h4 class="m-0 flex-grow-1 fw-bolder " style="color:#0A4057;">Machine's Complaints List</h4>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 p-3 overflow-hidden custom-filter-container">
+					<div class="d-flex align-items-center gap-3">
+						<div class="d-flex align-items-center gap-3">
+							<div class="d-flex flex-column  gap-2 custom-dropdown">
+								<label for="FrmDate" class="fw-bold m-0 text d-block">From Date:</label>
+								<input type="date" id="FrmDate" name="FrmDate" value="FrmDate" class="form-control p-2" />
+							</div>
+							<div class="d-flex flex-column gap-2 custom-dropdown">
+								<label for="frmDateTo" class="fw-bold m-0 text d-block">Date To:</label>
+								<input type="date" name="frmDateTo" id="frmDateTo" class="form-control p-2" value="frmDateTo" />
+							</div>
+						</div>
+						<div class="d-flex flex-column gap-2 custom-dropdown">
+							<label for="ddlStatus" class="fw-bold m-0 d-block text">Select Status</label>
+							<select class="form-select form-select-sm shadow-sm" id="ddlStatus">
+								<option value="" selected class="fw-bold">Select Status</option>
+								<option value="Pending" class="fw-bold">Pending</option>
+								<option value="InProgress" class="fw-bold">In Progress</option>
+								<option value="Completed" class="fw-bold">Completed</option>
+							</select>
+						</div>
+					</div>
+					<div class="d-flex">
+						<button id="btnSearch" class="btn btn_bg text-light btn-sm shadow-sm p-2 m-1 text-center custom-btn fw-bolder rounded-2" style="font-size:1rem;">
+							<i class="fa-solid fa-magnifying-glass"></i> Search
+						</button>
+						<div class="">
+							<a href="@Url.Action("addComplaint", "Prod_Dashboard")" class="btn btn_bg text-light btn-sm shadow-sm p-2 m-1 text-center custom-btn fw-bolder rounded-2" style="font-size:1rem;">
+								<i class="fa-solid fa-plus"></i>
+								Add Complaint
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="row col-sm-12">
+					<div class="table-responsive">
+						<table style="max-height:645px;" class="display nowrap table-bordered datatable custom-table" id="machineTableComp">
+							<thead class="bg-light">
+								<tr id="tableHeaders" class="font_SIZE"></tr>
+							</thead>
+							<tbody id="tableBody" class="font_SIZE"></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Mobile View Modal -->
+<div id="MobileView" class="d-none mt-5 overflow-hidden">
+	<div class="container mt-4 overflow-scroll">
+		<div class="d-flex align-content-center justify-content-between">
+			<div class="d-flex align-items-center flex-wrap gap-2">
+				<h4 class="m-0 flex-grow-1 fw-bolder " style="color:#0A4057;">Machine's Complaints List</h4>
+			</div>
+			<div class="d-flex flex-row">
+				<button id="ApplyFilter" class="btn btn_bg text-light btn-sm shadow-sm p-2 m-1 text-center custom-btn fw-bolder rounded-2">
+					<i class="fa-solid fa-filter"></i>
+				</button>
+				<div class="">
+					<a href="@Url.Action("addComplaint", "Prod_Dashboard")" class="btn btn_bg text-light btn-sm shadow-sm p-2 m-1 text-center custom-btn fw-bolder rounded-2" style="font-size:1rem;">
+						<abbr title="Add Complaint"><i class="fa-solid fa-square-plus"></i></abbr>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div id="cardContainer" class="overflow-scroll">
+		</div>
+	</div>
+</div>
+<!-- Modal To Filter Data -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-sm modal-dialog-centered">
+		<div class="modal-content">
+			<div class="row m-0">
+				<div class="modal-header">
+					<h6 class="m-0 fw-bold">Select Filters</h6>
+				</div>
+			</div>
+			<div class="modal-body p-3">
+				<div class="d-flex flex-column gap-2">
+					<div class="d-flex gap-2 row justify-content-evenly custom-dropdown">
+						<div class="col-lg-3">
+							<label for="FrmDate" class="fw-bold m-0 text d-block">From Date:</label>
+						</div>
+						<div class="col-lg-3">
+							<input type="date" id="MbFrmDate" name="FrmDate" class="form-control">
+						</div>
+					</div>
+					<div class="d-flex gap-2 row justify-content-evenly custom-dropdown">
+						<div class="col-lg-3">
+							<label for="FrmDate" class="fw-bold m-0 text d-block">To Date:</label>
+						</div>
+						<div class="col-lg-3">
+							<input type="date" id="MbfrmDateTo" name="frmDateTo" class="form-control ">
+						</div>
+					</div>
+					<div class="d-flex gap-2 row custom-dropdown">
+						<div class="col-lg-3">
+							<label for="ddlStatus" class="fw-bold m-0 d-block text">Select Status</label>
+						</div>
+						<div class="col-lg-3">
+							<select class="form-select form-select-sm shadow-sm" id="MBddlStatus">
+								<option value="" selected class="fw-bold">Select Status</option>
+								<option value="Pending" class="fw-bold">Pending</option>
+								<option value="InProgress" class="fw-bold">In Progress</option>
+								<option value="Completed" class="fw-bold">Completed</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer p-2 d-flex justify-content-center">
+				<button id="MobilebtnSearch" class="btn btn_bg text-light btn-sm shadow-sm p-2 text-center custom-btn fw-bolder rounded-2" style="font-size:1rem;">
+					<i class="fa-solid fa-magnifying-glass"></i> Search
+				</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$('#machineTableComp').DataTable();
+	
+	let authToken = localStorage.getItem("authToken");
+	
+	if (!authToken)
+	{
+		window.location.href = "/Login/Login";
+	}
+	
+	var ApiUrlMaster = "";
+	
+	let Baseurl="@ViewBag.Apiurl"
+	
+	$(document).ready(function () {
+		var url = Baseurl+"MachineProd/GetMachineProblemList?id=0&username=&status=Pending&fromDate=&toDate="
+		console.log(url)
+		BindComplauints(url);
+		search()
+		FillDataMobileView(url)
+	});
+	
+	function BindComplauints(AjaxUrl){
+		ApiUrlMaster = AjaxUrl;
+		var ID = $('#machineTableComp');
+
+		axios.get(ApiUrlMaster)
+		.then(function (response) {
+			const data = response.data;
+
+			if (!data || data.length === 0) {
+				$("#tableHeaders").empty();
+				$("#tableBody").empty();
+				return;
+			}
+
+			let tblHeasders = ["Ticket Id", "Macine Code", "Ticket Opening Date", "Status", "Model", "Reason", "Assigned Engineer", "Problem",
+							   "RepairedDate", "Edit"];
+			let tableheader = $("#tableHeaders");
+			tableheader.empty();
+
+			tblHeasders.forEach(header => {
+				tableheader.append(`<th>${header}</th>`);
+			});
+
+			$("#tableBody").empty();
+
+			data.forEach(item => {
+				let row = `<tr class="rowHeight">`;
+				row += `<td>${item.$id || ""}</td>`;
+				row += `<td>${item.MachineCode || ""}</td>`;
+				row += `<td>${item.Entrydt || ""}</td>`;
+				row += `<td>${item.Status || ""}</td>`;
+				row += `<td>${item.ModelNo || ""}</td>`;
+				row += `<td>${item.Remark || ""}</td>`;
+				row += `<td>${item.AssignRole || ""}</td>`;
+				row += `<td>${item.Problem || ""}</td>`;
+				row += `<td>${item.UpdateBy || ""}</td>`;
+				row += `<td>
+					<a href="@Url.Action("EditMachineDetails", "Machine")?id=${item.$id}"
+					   class="openFormBtn"
+					   id="editBtn"
+					   data-id="${item.$id}">
+					  <i class="fa-solid fa-pen-to-square"></i>
+					</a>
+				</td>`;
+				$("#tableBody").append(row);
+			});
+
+			ID.find("tbody").off("click").on("click", "tr", function () {
+				var rowIndex = table.row(this).index();
+				var rowData = data[rowIndex];
+				let modalContent = "<ul class='list-group'>";
+
+				Object.entries(rowData).forEach(([key, value]) => {
+					modalContent += `<li class='list-group-item'><strong>${key || ""}:</strong> ${value || ""}</li>`;
+				});
+				modalContent += "</ul>";
+
+				$("#modalBodyContent").html(modalContent);
+				$("#dataModal").modal("show");
+			});
+
+		})
+		.catch(function (error) {
+			console.error("Error fetching data:", error);
+		});
+	}
+
+	function search(){
+		$('#btnSearch').on('click',()=>{
+			let dateFrom =$('#FrmDate').val();
+			let Dateto = $('#frmDateTo').val()
+			let Status =$('#ddlStatus').val()
+		   var Apiurl = `${Baseurl}MachineProd/GetMachineProblemList?id=0&username=&status=${Status}&fromDate=${dateFrom}&toDate=${Dateto}`
+		   BindComplauints(Apiurl)
+		})
+	}
+	
+	var ApplyFilter = $("#ApplyFilter")
+	
+	var myModal = $('#myModal')
+	
+	ApplyFilter.on('click',function()
+	{
+		myModal.modal('show')
+	})
+		
+	$('#MobilebtnSearch').click(function() {
+		var dateFrom = $('#MbFrmDate').val();
+		var Dateto = $('#MbfrmDateTo').val();
+		var Status = $('#MBddlStatus').val();
+		var myModal = $('#myModal');
+		var Apiurl = `${Baseurl}MachineProd/GetMachineProblemList?id=0&username=&status=${Status}&fromDate=${dateFrom}&toDate=${Dateto}`;
+
+		axios.get(Apiurl)
+		.then(function(response) {
+			let cards = $("#cardContainer");
+			cards.empty();
+			$.each(response.data, function(index, machine) {
+				var cardHtm = `
+					<div class="card shadow-sm mb-3">
+						<div class="card-header bg-white text-center fw-bold">
+							Treadle Sewing Machine
+						</div>
+						<div class="card-body">
+							<p><strong>Ticket Id :</strong> <span class="text-muted">${machine["$id"] || ""}</span></p>
+							<p><strong>Machine Code :</strong> <span class="text-muted">${machine["MachineCode"] || ""}</span></p>
+							<p><strong>Ticket Opening Date:</strong> <span class="text-muted">${machine["Entrydt"] || ""}</span></p>
+							<p><strong>Status :</strong> <span class="text-muted">${machine["Status"] || ""}</span></p>
+							<p><strong>Model :</strong> <span class="text-muted">${machine["ModelNo"] || ""}</span></p>
+							<p><strong>Reason :</strong> <span class="text-muted">${machine["Remark"] || ""}</span></p>
+							<p><strong>Assigned Engineer:</strong> <span class="text-muted">${machine["AssignRole"] || ""}</span></p>
+							<p><strong>Problem :</strong> <span class="text-muted">${machine["Problem"] || ""}</span></p>
+							<p><strong>Repaired Date :</strong> <span class="text-muted">${machine["UpdateBy"] || ""}</span></p>
+						</div>
+					</div>
+				`;
+				cards.append(cardHtm);
+			});
+		})
+		.catch(function(error) {
+			console.error("Error fetching data:", error);
+		})
+		.finally(function() {
+			myModal.modal('hide');
+		});
+	});
+
+	function FillDataMobileView(URL) {
+		var Apiurl = URL;
+		try {
+			axios.get(Apiurl)
+			.then(function(response) {
+				let cards = $("#cardContainer");
+				cards.empty(); 
+
+				$.each(response.data, function(index, machine) {
+					var cardHtm = `
+						<div class="card shadow-sm mb-3">
+							<div class="card-header bg-white text-center fw-bold">
+								Treadle Sewing Machine
+							</div>
+							<div class="card-body">
+								<p><strong>Ticket Id :</strong> <span class="text-muted">${machine["$id"] || ""}</span></p>
+								<p><strong>Machine Code :</strong> <span class="text-muted">${machine["MachineCode"] || ""}</span></p>
+								<p><strong>Ticket Opening Date:</strong> <span class="text-muted">${machine["Entrydt"] || ""}</span></p>
+								<p><strong>Status :</strong> <span class="text-muted">${machine["Status"] || ""}</span></p>
+								<p><strong>Model :</strong> <span class="text-muted">${machine["ModelNo"] || ""}</span></p>
+								<p><strong>Reason :</strong> <span class="text-muted">${machine["Remark"] || ""}</span></p>
+								<p><strong>Assigned Engineer:</strong> <span class="text-muted">${machine["AssignRole"] || ""}</span></p>
+								<p><strong>Problem :</strong> <span class="text-muted">${machine["Problem"] || ""}</span></p>
+								<p><strong>Repaired Date :</strong> <span class="text-muted">${machine["UpdateBy"] || ""}</span></p>
+							</div>
+						</div>
+					`;
+					cards.append(cardHtm);
+				});
+			})
+			.catch(function(error) {
+				console.error("Error fetching data:", error);
+			});
+		} catch (err) {
+			console.log(err);
+		}
+	}
+</script>

@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inventory</title>
+    <link rel="shortcut icon" href="~/Images/rc.png" type="image/x-icon">
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+        #navbar {
+            background-color: #1474A4;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+            z-index: 1000;
+        }
+        #btnLogout {
+            width: 80px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        #toggleSidebar {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: none;
+        }
+
+        #toggleSidebar:hover {
+            background-color: transparent;
+            border: 1px solid white;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" id="navbar">
+        <div class="container-fluid d-flex justify-content-between align-items-center  ">
+            <div class="col-sm-2">
+                <div class="d-flex align-items-center" style="padding-left:3px;">
+                    <img class="d-none d-lg-block" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAArCAYAAADMr156AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAD2AAAA9gAXp4RY0AAAMeSURBVGhD7ZldSBRRGIY3y8IMioS8sZCCEPrBKPCioJsgIsGbyJvuKoqupItiIygJuqjoogj6uYjCLDGx2JRVjA0TM6wUbaUfQqXUNLfEXPfnzPmm88E3sWxTuzM7c5iJeeC9WPY93znzntk5e874PDw8DKGq8TKAxEazUlV1KZXyAUCJnkemxHgW0HCMwQJlU8l7PtWs1OTsDirl4++v1el5ZEpMxhIajjG8IAinBcFaNo8rLw++4OELTViP9/vbWGjvEKvPAz1/ulwdBGvfPswnQ2fVxFw5lfoDcYFFMD+6n7+uCenV0GR7EKy5ZEbprBpkLeVjqbOTSxDs8doIRHqPGx08JKMVSlf1G72atgXBB063iqfxhtSnsehsNR+pu47fmw1CeV7dJ2quoaaGEW0X8vHg+fS6tgTBh+/eJJsuMN3tNxMEHzzzRAy4kJrlBMwOHU69Qy0PgrVumsg0WJwV4Smmj1kFoXTt67cqBA2Y6jql1bc8CD50qZEsWZMpCPao9LuqxkrJbil8oDaAfVgfxETHObJkTaYg4FvPCbJaDj5vWFPxT+uDmHxaS5as+VcQLLjtsxhkAVltgX9pvuz4IMzUMwpAbJ24MxbTR2PICkJNRreSzZnICAJXIDFT5naFspARhNJzqJsszkVGELiBIotzkRLEx1u3yeJcpAQh9itkcS5SnhHibzVZnIuMIFjjinmxavw+23QkMoJAQfxrFdlsQ4SdZ3qZlhUE/3DjDtlsA+JTe5y/12goSOJfYLLaAu/zBx0fBIq/u3KfrJYD8YlK7MMVQeBJEh7Akt0yxMUXsbaKUezDFUGg2MOVUUjMbaEmOYMXrvQe69TquyYIFPaZetZpFrFCLMf3Hqm1XRUEij0oTMBM+CguedTcELitZ88qw+l1XReEJjzWh1hkN5XICJ558tGGq6w+X9Gr59ogNLGOnZ/4WOCiGpveBRBfL+6UZUKLxIWtwtmHH69qcM/ytwA0uT4IPWX7vjNV/2UQZmQ6CN5/sl3pPtCbLph5e4QsWYOvAPRqyZT4OeXTcDw8PDw8PHLC5/sF0Nf2dql6ErwAAAAASUVORK5CYII=">
+                    <h4 class="text-light ms-2 d-none d-lg-block ">Inventory</h4>
+                    <div class="d-flex align-items-center d-lg-none d-md-block d-sm-block">
+                        <button id="toggleSidebar" class="btn btn-outline-light text-light" onclick="ToggleSidebar()">
+                            <i id="toggleIcon" class="fas fa-bars"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-sm-10 d-flex justify-content-end">
+                <div class="d-flex align-items-center">
+                    <div class="text-wrap align-middle " style="margin-right:20px;">
+                         <span id="welcome" class="text-light"></span> 
+                    </div>
+                    <div id="btnLogout" class="btn btn-light p-0 d-flex flex-column" onclick="Logout()">
+                        <i class="fas fa-sign-out-alt h5"></i>
+                        <span class="fw-bold">Log Out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <script>
+        $(document).ready(function() {
+            let a = sessionStorage.getItem("UserName");
+            if (a) {
+                let nameParts = a.split(" ");
+                let firstName = nameParts[0];
+                let lastName = nameParts.length > 1 ? nameParts[1] : '';
+                let formattedName = `${firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()} ${lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()}`;
+                $('#welcome').html(`<strong>WELCOME</strong> <br>${formattedName}`);
+            } else {
+                $('#welcome').html('<strong>WELCOME</strong> GUEST');
+            }
+        });
+        
+        function Logout()
+        {
+            localStorage.removeItem("authToken");
+            sessionStorage.removeItem("UserRole");
+            window.location.href = "/Login/Login";
+        }
+
+        function ToggleSidebar() {
+            const sidebar = $("#sidebar");
+            const mainContent = $("#mainContent");
+            const icon = $("#toggleIcon");
+            if (sidebar.is(":visible")) {
+                sidebar.animate({ width: "0" }, 300, function () {
+                    sidebar.css("display", "none");
+                });
+                mainContent.animate({ width: "100%" }, 300);
+                icon.removeClass("fa-xmark").addClass("fa-bars");
+            } else {
+                sidebar.css("display", "block").animate({ width: "16%" }, 300);
+                mainContent.animate({ width: "84%" }, 300);
+                icon.removeClass("fa-bars").addClass("fa-xmark");
+            }
+        }
+    </script>
+</body>
+</html>

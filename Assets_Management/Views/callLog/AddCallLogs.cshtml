@@ -1,0 +1,283 @@
+﻿@{
+	Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<link href="~/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="~/bootstrap/css/bootstrap.rtl.min.css" rel="stylesheet" />
+	<link href="~/assets/select2/css/select2.css" rel="stylesheet" />
+	<script src="~/assets/select2/js/select2.js"></script>
+	<script src="~/bootstrap/js/bootstrapbundle.js"></script>
+	<script src="~/assets/sweetalert/sweetalertjs/sweetalert.js"></script>    
+	<script src="~/customjavascript/commoncontrol.js"></script>
+	<script src="~/customjavascript/axuse.js"></script>
+	<title>Add Call Log</title>
+
+	<style>
+		body {
+			background-color: #f0f9ff;
+		}
+
+		.center-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+
+		.form-card {
+			width: 100%;
+			max-width: 1200px;
+			padding: 30px;
+			border-radius: 12px;
+			background-color: #ffffff;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.btn-custom {
+			background-color: #0097d7;
+			font-weight: 600;
+			color: white;
+			padding: 10px 20px;
+			border-radius: 6px;
+			transition: 0.3s;
+		}
+
+		.btn-custom:hover {
+			background-color: #1474A4;
+			color: #fff;
+		}
+
+		.fontText {
+			color: #0097d7;
+		}
+
+		.form-control {
+			border-radius: 6px;
+		}
+
+		.select2-container .select2-selection--single {
+			height: 47px !important;
+			font-size: 15px !important;
+			padding: 0.375rem 0.75rem !important;
+			border: 1px solid #ccc !important;
+			border-radius: 0.25rem !important;
+			padding: 10px;
+		}
+
+		.select2-container--default .select2-selection--single .select2-selection__rendered {
+			line-height: 1.5 !important;
+		}
+
+		.position-fixed {
+			top: 1rem;
+			right: 1rem;
+			left: auto;
+			bottom: auto;
+		}
+	</style>
+</head>
+<body>
+	<div class="container-fluid center-container">
+		<div class="card form-card">
+			<div class="card-body">
+				<h1 class="text-center fw-bold fontText">Add Call Log</h1>
+				<form>
+					<div class="row g-3 mt-4">
+						<div class="col-md-6">
+							<label class="form-label fw-bold fontText">Asset Type:</label>
+							<input type="hidden" id="hdnSystemAdd" />
+							<input type="hidden" id="hdnGIMS_User" />
+							<input type="hidden" id="hdnPADS_User" />
+							<input type="hidden" id="hdnVFM_User" />
+							<select class="form-control form-control-lg" id="ddlAssets">
+								<option value="" selected>There is no asset type available</option>
+							</select>
+							<label class="form-label fw-bold text-danger mt-1 ms-1 p-1" id="assetErr">Please Select Asset Type</label>
+						</div>
+						<div class="col-md-6">
+							<label class="form-label fw-bold fontText">Install Unit:</label>
+							<input type="text" class="form-control form-control-lg" id="InstallUnit" value="N/A" readonly />
+						</div>
+					</div>
+					<div class="row g-3 mt-2">
+						<div class="col-md-6">
+							<label class="form-label fw-bold fontText">User Name:</label>
+							<input type="text" class="form-control form-control-lg" id="UseName" value="N/A" readonly />
+						</div>
+						<div class="col-md-6">
+							<label class="form-label fw-bold fontText">Call Type:</label>
+							<select id="ddlCallType" class="form-control form-control-lg" onchange="fillProblem()">
+								<option>No Call Type Available</option>
+							</select>
+							<input type="hidden" class="form-control form-control-lg" id="Department" value="N/A" readonly />
+						</div>
+					</div>
+					<div class="row g-3 mt-2">
+						<label class="form-label fw-bold fontText">Problem:</label>
+						<textarea class="form-control form-control-lg" id="Problem" placeholder="Enter Your Problem" required></textarea>
+						<label class="form-label fw-bold text-danger" id="problemErr">Please enter your problem first</label>
+					</div>
+					<div class="text-center mt-4">
+						<input type="button" class="btn btn-custom btn-lg" id="SubmitComplaint" onclick="submitComplaint()" value="Submit" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script>
+		const urlParams = new URLSearchParams(window.location.search);
+		const assetCode = urlParams.get("AssetCode");
+		const formattedAssetCode = assetCode.replace(/-/g, "/");
+		let UserName = sessionStorage.getItem("UserName")
+		var Department = $('#Department');
+		var Installunit = $('#InstallUnit');
+		var UseName = $('#UseName');
+		var Problem = $('#Problem');
+		let authToken = localStorage.getItem("authToken");
+		var ApiBasurl = "@ViewBag.ApiBasurl";
+		let AssetCode = $('#AssetCode');
+		$('#problemErr').hide()
+		$('#assetErr').hide()
+
+		$(document).ready(function() {
+			let redirectURL = sessionStorage.getItem("redirectAfterLogin");
+
+			if (redirectURL) {
+				sessionStorage.removeItem("redirectAfterLogin");
+				window.location.href = redirectURL;
+			}
+			 bindAssetType();
+			 BindCalltype();
+		});
+
+		$('#ddlAssets').on('change',function(){
+			BindAssetCode();
+		})
+
+		function BindAssetCode()
+		{
+			debugger
+			let assetCode = $('#ddlAssets').val()
+			let URL = `${ApiBasurl}/Asset/GetAssetDataByAssetcode?AssetCode=${assetCode}`;
+
+			$.ajax({
+				url: URL,
+				method: "GET",
+				dataType: "json",
+				headers: { "Authorization": `Bearer ${authToken}` },
+				success: function(data) {
+					console.log('data',data);
+					Department.val(data[0].DEPT);
+					UseName.val(data[0].USER_NAME);
+					Installunit.val(data[0].INSTALLED_UNIT);
+					$('#hdnSystemAdd').val(data[0].Login_Id);
+					$('#hdnVFM_User').val(data[0].VFM_ID);
+					$('#hdnPADS_User').val(data[0].PADS_ID);
+					$('#hdnGIMS_User').val(data[0].GIMS_ID);
+				},
+				error: function(xhr, status, error) {
+					console.error("Error fetching asset data:", error);
+				}
+			});
+		}
+
+		function submitComplaint()
+		{
+			if($('#ddlAssets').val()=="" || $('#ddlAssets').val()=="0")
+			{
+			   $('#assetErr').show();
+				setTimeout(function()
+				{
+				  $('#assetErr').hide();
+				}, 2000);
+			}
+			else if ($('#Problem').val() == "")
+			{
+				$('#problemErr').show();
+				setTimeout(function()
+				{
+				   $('#problemErr').hide();
+				}, 2000);
+			}
+			else if($('#Problem').val()!="")
+			{
+			 let URL = `${ApiBasurl}/CallLogin/ManageCallLogindata`
+				const payload =
+				{
+					Asset_Code: $('#ddlAssets').val(),
+					Premises: $('#InstallUnit').val(),
+					User_Name:  $('#UseName').val(),
+					Department: $('#Department').val(),
+					Call_desc: $('#Problem').val(),
+					Call_Status: "PENDING",
+					CallTypeID: $('#ddlAssets').find("option:selected").attr("Title"),
+					CallType:$('#ddlCallType').val()
+				};
+				$.ajax({
+					url:URL,
+					method:"POST",
+					contentType: "application/json; charset=utf-8",
+					data:JSON.stringify(payload),
+					headers: { "Authorization": `Bearer ${authToken}` },
+					success: function(response) {
+						Swal.fire({
+							position: "top-end",
+							icon: "success",
+							title: "Call Added SuccessFully !!",
+							showConfirmButton: false,
+							timer: 1500
+						}).then(() => {
+							location.reload();
+						});
+					},
+					error: function(xhr, status, error)
+					{
+					 console.error("Error submitting complaint:", error);
+					  showToast("An error occurred. Please try again.", "error");
+					}
+				})
+			}
+		}
+
+		function bindAssetType()
+		{
+			let URL = `${ApiBasurl}/Asset/GetAssetType?AssetCode=${formattedAssetCode}`;
+			BindDropdown(URL,'ddlAssets',authToken,'CPU_ASSET_CODE','Asset_Description',' Asset Code')
+		}
+
+		function BindCalltype()
+		{
+			let URL = `${ApiBasurl}/CallLogin/CallLogType`
+			BindDropdown(URL,'ddlCallType',authToken,'CallType','CallType','Call Type')
+		}
+
+		function fillProblem() {
+			debugger
+			let problemVal = $('#ddlCallType').val()
+			let AccountName = $('#hdnSystemAdd').val()
+			if(problemVal.indexOf("Lock")){
+			   $('#Problem').val(AccountName)
+			}
+			else if(problemVal=="Computer Lock"){
+			   $('#Problem').val($('#hdnVFM_User').val())
+			}
+			else if(problemVal=="PADS Lock"){
+			   $('#Problem').val($('#hdnPADS_User').val())
+			}
+			else if(problemVal=="Lock"){
+			   $('#Problem').val($('#hdnGIMS_User').va())
+			}
+			else if($('#Problem').val() == "")
+			{
+			   $('#Problem').val(problemVal)
+			}
+		}
+	
+	</script>
+</body>
+</html>
+

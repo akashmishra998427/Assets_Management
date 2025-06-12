@@ -1,0 +1,639 @@
+﻿@model Assets_Management.Models.GenerateQrCodes
+
+@{
+	ViewData["Title"] = "Genrate Asset QR Codes";
+	Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+
+<style>
+	.select2-container .select2-selection--single {
+		height: 35px !important;
+		font-size: 15px !important;
+		padding: 0.375rem 0.75rem !important;
+		border: 1px solid #ccc !important;
+		border-radius: 0.25rem !important;
+	}
+
+	.select2-container--default .select2-selection--single .select2-selection__rendered {
+		line-height: 1.5 !important;
+	}
+
+	.btn_bg {
+		background-color: #0097d7;
+		font-weight: 500;
+	}
+
+	.btn_bg:hover {
+		background-color: #1474A4;
+	}
+
+	.text {
+		color: #1474A4;
+	}
+
+	.list-group-item {
+		margin-bottom: 10px;
+		border-radius: 5px;
+		background-color: #f8f9fa;
+	}
+
+	#checkboxContainer {
+		width: 100%;
+		background: white;
+		border-radius: 8px;
+		box-shadow: 0 4px 30px rgb(143 115 170 / 42%);
+		backdrop-filter: blur(8px);
+	}
+
+	#qrContainer {
+		background: white;
+		border-radius: 8px;
+		box-shadow: 0 4px 30px rgb(143 115 170 / 42%);
+		backdrop-filter: blur(8px);
+	}
+
+	#closeBtn {
+		margin-left: 91%;
+		display: flex;
+		width: 10%;
+		gap: 6px;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 10px;
+	}
+
+	#Department {
+		height: 38px;
+		width: 100%;
+	}
+
+	.select2-container--default .select2-selection--multiple {
+		min-height: 38px;
+		border: 1px solid #ced4da;
+	}
+
+	@@media only screen and (max-width: 1856px) {
+		.Department {
+			margin-left: 10%;
+		}
+	}
+
+	@@media only screen and (max-width: 1356px) {
+		.Department {
+			margin-left: 10%;
+		}
+	}
+
+	@@media only screen and (max-width: 1356px) {
+		.Department {
+			margin-left: 20%;
+		}
+	}
+
+	@@media only screen and (max-width: 900px) {
+		.Department {
+			margin-left: 1%;
+		}
+
+		#closeBtn {
+			margin-left: 79%;
+			display: flex;
+			width: 21%;
+			gap: 6px;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 10px;
+		}
+	}
+</style>
+
+<div class="position-relative">
+	<div class="p-4 mb-4">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h3 class="text fw-bolder">Generate Assets QR Code</h3>
+			<button id="printQrBtn" class="btn btn-outline-primary fw-bold" style="display: none;">Print QR Codes</button>
+		</div>
+		<form asp-action="genrateAssetQR" method="post">
+			<div class="row">
+				<!-- Left Section -->
+				<div class="col-lg-6 col-md-6">
+					<div class="row g-3 mb-3 customOpacity">
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<label for="premisesDropdown" class="form-label fw-bold">Premises</label>
+							<select id="premisesDropdown" name="Premises" class="form-control p-2"></select>
+						</div>
+
+						<div class="col-lg-4 col-md-6 col-sm-12 Department">
+							<label for="Department" class="form-label fw-bold">Department</label>
+							<select id="Department" name="Department" class="form-control p-2 js-example-basic-multiple">
+								<option value="">Select Department</option>
+							</select>
+						</div>
+
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<label for="ddlAssets" class="form-label fw-bold">Asset Type</label>
+							<select class="form-control p-2" id="ddlAssets">
+								<option value="">Select Asset Type</option>
+								<option value="L">Laptop</option>
+								<option value="M">Monitor</option>
+								<option value="C">Computer</option>
+								<option value="P">Printer</option>
+								<option value="T">Tab</option>
+							</select>
+						</div>
+					</div>
+					<!-- Buttons -->
+					<div class="row mt-4 customOpacity">
+						<div class="col-12 d-flex gap-2">
+							<input type="button" value="Generate QR" id="submit" class="btn btn_bg text-light fw-bold">
+							<button type="reset" id="reset" class="btn btn-secondary fw-bold">Reset</button>
+							<div class="btn btn-info text-light fw-bold" id="viewBtn" onclick="OpenModal()">
+								<i class="fa-solid fa-street-view"></i> View
+							</div>
+						</div>
+					</div>
+					<!-- Asset List Section -->
+					<div class="mt-4 p-3 checkboxContainer" id="checkboxContainer">
+						<div id="loader" style="display:none;">Loading...</div>
+
+						<div id="closeBtn" onclick="CloseModal()" class="btn btn-danger fw-bold">
+							<i class="fa-solid fa-xmark"></i> Close
+						</div>
+
+						<div class="d-flex justify-content-between align-items-center mb-2">
+							<h5 class="text fw-bold" id="heading">Assets List</h5>
+							<div class="d-flex align-items-center gap-2">
+								<span id="selectedAssetsCount" class="fw-bold"></span>
+								<input type="checkbox" class="form-check" id="selectAllAssets">
+							</div>
+						</div>
+
+						<div id="assetList" class="list-group" style="max-height: 400px; overflow-y: auto;"></div>
+					</div>
+				</div>
+				<!-- Right Section -->
+				<div class="col-lg-6 col-md-6 customOpacity">
+					<div id="qrContainer" class="container mt-3 pt-3"></div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+
+	$('#closeBtn').hide();
+	$('#checkboxContainer').hide();
+	$('#qrContainer').hide();
+	let selectedAssets = [];
+	let BindAssets=[]
+	let assetData=[]
+	let chkAssets =[]
+	var apiBaseUrl = "@ViewBag.ApiBasurl";
+	let authToken = localStorage.getItem("authToken");
+	if (!authToken) {
+		window.location.href = "/Login/Login";
+	}
+
+	$(document).ready(function () {
+		$('#heading').hide();
+		$('#selectAllAssets').hide();
+		BindPremises();
+		$('#premisesDropdown').on('change', function () {
+			$('#Department').empty();
+			BindDepartment();
+			bindAssetCode();
+			$('#selectAllAssets').show();
+			$('#heading').show();
+		});
+		$('#Department').on('change', function () {
+			bindAssetCode();
+		});
+		$('#ddlAssets').on('change', function () {
+			bindAssetCode();
+		});
+	});
+
+	function bindAssetCode()
+	{
+		$('#assetCount').show();
+		$('#checkboxContainer').show();
+		let loader = `<div id="loader" class="text-center my-3">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<p class="mt-2">Loading, please wait...</p>
+					  </div>`;
+		$('#assetList').html(loader);
+
+		let unit = $('#premisesDropdown').val() || "";
+		let department = $('#Department').val() || "";
+		let Asset_type = $('#ddlAssets').val() || "";
+		let URL = `${apiBaseUrl}/Asset/GetAssetCode?Unit=${encodeURIComponent(unit)}&Department=${encodeURIComponent(department)}&AssetType=${encodeURIComponent(Asset_type)}`;
+		let assetList = $("#assetList");
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function (data)
+			{
+				$('#loader').remove();
+				assetList.empty();
+
+				let searchBox = `<div id="searchContainer" style="position: sticky; top: 0; background: white; z-index: 10;">
+									<input type="text" id="searchAsset" class="form-control p-2 mb-2" placeholder="Search assets...">
+								 </div>`;
+				assetList.append(searchBox);
+
+				if (data.length === 0) {
+					assetList.append(`<p class="text-muted text-center">No assets found</p>`);
+					return;
+				}
+
+				assetData = data.map(item => ({
+					 Premises: item.premises,
+					 Model: item.Model_Number,
+					 Asset_Code: item.CPU_ASSET_CODE,
+					 Make: item.MAKE,
+					 Asset_Type: item.Asset_Type,
+					 ImageURL: "",
+					 DEPARTMENT:item.DEPT,
+					 USER_NAME:item.USER_NAME,
+					 isSelected: false
+				}));
+
+				function renderAssets(filteredData) {
+					const newArray = filteredData.sort((a, b) =>
+						b.isSelected - a.isSelected ||
+						(a.DEPARTMENT || '').localeCompare(b.DEPARTMENT || '')
+					);
+
+					console.log('new', newArray);
+					assetList.find('.asset-item').remove();
+
+					newArray.forEach(item => {
+						let isChecked = item.isSelected ? 'checked' : '';
+						let listItem = `
+							<label class="list-group-item d-flex justify-content-between align-items-center p-3 asset-item">
+								<span class="asset-text">${item.Asset_Code || ""}-${item.Model || ""}- ${item.Asset_Type || ""}-${item.USER_NAME || ""}-${item.DEPARTMENT || ""}</span>
+								<input type="checkbox" name="SelectedAssets" class="chkRow" value='${item.Asset_Code}' ${isChecked}>
+							</label>`;
+						assetList.append(listItem);
+					});
+
+					SetSelected();
+				}
+
+				renderAssets(assetData);
+
+				$("#selectAllAssets").on("change", function () {
+					let isChecked = $(this).prop("checked");
+					assetData.forEach(item => item.isSelected = isChecked);
+					SetSelected();
+				});
+
+				assetList.on('change', '.chkRow', function () {
+					let assetValue = $(this).val();
+					let asset = assetData.find(item => item.Asset_Code === assetValue);
+					if (asset) {
+						asset.isSelected = $(this).prop("checked");
+					}
+					SetSelected();
+				});
+
+				function SetSelected() {
+					let selectedAssets = assetData.filter(item => item.isSelected).length;
+					$('#selectedAssetsCount').text(selectedAssets > 0 ? `Selected: ${selectedAssets}` : '');
+				}
+
+				$("#searchAsset").on("input", function () {
+					let searchText = $(this).val().toLowerCase();
+					let filteredAssets = assetData.filter(item => `${item.Asset_Code} ${item.Model} ${item.Asset_Type} ${item.USER_NAME} ${item.DEPARTMENT}`.toLowerCase().includes(searchText));
+					renderAssets(filteredAssets);
+				});
+
+				function CloseModal()
+				{
+					$('#searchAsset').val('');
+					$('#closeBtn').hide();
+					$('#viewBtn').show();
+					$('.checkboxContainer').css({
+						"zIndex": "",
+						"height": "",
+						"width": "100% !important",
+						"position": "",
+						"top": "",
+						"left": "",
+						"background": "",
+						"padding": "",
+						"borderRadius": "",
+						"boxShadow": "",
+						"transform": ""
+					});
+
+					$('#assetList').css({
+						"max-height": "400px",
+						"max-width": "700px !important",
+						"height": "",
+						"width": "",
+						"overflow-y": "auto",
+						"box-shadow": ""
+					});
+
+					$('.checkBoxRebt').css({
+						"max-width": "700px !important",
+						"width": "",
+					});
+
+					$('.customOpacity').css({ "opacity": "1" });
+					setTimeout(function() {
+						renderAssets(assetData);
+					},10);
+				}
+
+				$('#closeBtn').on('click', CloseModal);
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching asset codes:", error);
+				$('#loader').html('<p class="text-danger text-center">Failed to load assets. Please try again.</p>');
+			}
+		});
+	}
+
+	function BindPremises()
+	{
+		let URL =  `${apiBaseUrl}/Premises/GetPremises`;
+		BindDropdown(URL,'premisesDropdown',authToken,'compCode','compCode','Select Premises')
+	}
+
+	function BindDepartment() {
+		let unit = $('#premisesDropdown').val();
+		if (!unit) {
+			return;
+		}
+		let URL = `${apiBaseUrl}/Asset/GetDepartment?Unit=${unit}`;
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function (data) {
+				let dropdown = $('#Department');
+
+				if (dropdown.hasClass("select2-hidden-accessible")) {
+					dropdown.select2('destroy');
+				}
+
+				dropdown.empty();
+
+				data.forEach(item => {
+					if (item['DEPARTMENT'] && item['DEPARTMENT'].toString().trim() !== "") {
+						let value = item['DEPARTMENT'].toString().trim();
+						dropdown.append(`<option value="${value}">${value}</option>`);
+					}
+				});
+
+				dropdown.attr('multiple', 'multiple').select2({
+					placeholder: 'Select Department',
+					allowClear: true,
+					width: '100%',
+					dropdownParent: dropdown.parent(),
+					selectOnClose: false
+				});
+
+				dropdown.val(null).trigger('change');
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching departments:", error);
+			}
+		});
+	}
+
+	$('#submit').on('click', function () {
+		$("#qrContainer").show()
+	chkAssets = assetData
+	  .filter(item => item.isSelected === true)
+	  .sort((a, b) => a.DEPARTMENT.localeCompare(b.DEPARTMENT));
+		console.log('shfj',chkAssets)
+		selectedAssets = [];
+		$('.chkRow:checked').each(function () {
+			selectedAssets.push($(this).val());
+		});
+		if (selectedAssets.length === 0) {
+			showToast("Please select at least one asset.", "error");
+			return;
+		}
+		let submitButton = $('#submit');
+		submitButton.html(`
+			<span class="spinner-border spinner-border-sm me-1"></span> Generating...
+		`);
+		$('#qrContainer').html(`
+			<div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+				<div class="spinner-border text-primary" role="status"></div>
+				<span class="ms-2 fw-bold">Generating QR Codes...</span>
+			</div>
+		`);
+		let CheckAssetData = {
+			GeneratedQRCodeList: chkAssets
+		};
+		$.ajax({
+			url: "/Assets/genrateAssetQR",
+			type: "POST",
+			data: JSON.stringify(CheckAssetData),
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (response) {
+				let HtmlData = `
+					<h5 class="text fw-bold text-center mt-3 mb-3" id="heading2">Generated QR Codes</h5>
+					<div class="row row-cols-3 g-3 mt-3" style="height:660px; overflow-y: scroll;">
+				`;
+				$.each(response, function (i, v) {
+					const modelOrMake = v.model && v.model.trim() !== ""
+						? `<span id="model" style="font-size: 14px;">Model No:</span><br />
+						   <span id="label">${v.model}</span>`
+						: `<span id="model">Make:</span><br />
+						   <span id="label">${v.make}</span>`;
+
+					HtmlData += `
+						<div class="col d-flex align-items-center justify-content-center">
+							<div class="d-flex flex-row align-items-center border rounded" style="width:6.3cm;height:3cm;">
+								<img src="${v.imageURL}" alt="QR Code" style="height:110px;width:115px;" />
+								<p class="fw-bold m-0" style="font-size:12px; padding-left:5px;">
+									<span style="font-size: 16px;">${v.asset_Code}</span><br /><br />
+									${modelOrMake}
+								</p>
+							</div>
+						</div>
+					`;
+				});
+				HtmlData += `</div>`;
+				$('#qrContainer').html(HtmlData);
+				$('#printQrBtn').show();
+			}
+		});
+	});
+
+	$('#printQrBtn').on('click', function ()
+	  {
+		 let qrItems = $('#qrContainer .col');
+		 if (qrItems.length === 0) {
+			 alert("No QR codes available to print.");
+			 return;
+		 }
+		 let printFrame = document.createElement('iframe');
+		 printFrame.style.position = 'absolute';
+		 printFrame.style.width = '0px';
+		 printFrame.style.height = '0px';
+		 printFrame.style.border = 'none';
+		 document.body.appendChild(printFrame);
+
+		 let doc = printFrame.contentWindow.document;
+		 doc.open();
+		 doc.write(`
+			<html>
+			<head>
+			   <title>Print QR Codes</title>
+			   <style>
+						@@page {
+					   size: A4;
+					   margin: 10mm;
+				   }
+				   body {
+					   font-family: Arial, sans-serif;
+					   text-align: center;
+				   }
+					 .page {
+					   margin-top: 30px;
+					   display: grid;
+					   grid-template-columns: repeat(3, 1fr);
+					   grid-template-rows: repeat(8, auto);
+					   gap: 24px;
+					   justify-items: center;
+					   align-items: center;
+					   page-break-after: always;
+				   }
+				   .qr-box {
+					   display: flex;
+					   width: 6.3cm;
+					   height: 3cm;
+					   border-radius: 5px;
+					   flex-direction: row;
+					   align-items: center;
+					   justify-content: center;
+					   border: 1px solid black;
+				   }
+				   .qr-box > div > div {
+					   display: flex;
+					   flex-direction: row;
+					   text-align: left;
+				   }
+				   img {
+					   height: 112px;
+					   width: 115px;
+					   padding: 2px;
+				   }
+				   p {
+					   font-size: 12px;
+					   margin-left: 10px;
+					   font-weight: bold;
+				   }
+			   </style>
+			</head>
+			<body>
+		 `);
+
+		 let totalQRs = qrItems.length;
+		 for (let i = 0; i < totalQRs; i += 24) {
+			doc.write(`<div class="page">`);
+			let batch = qrItems.slice(i, i + 24);
+			batch.each(function () {
+			let qrHtml = $(this).clone().wrap('<div class="qr-box"></div>').parent().prop('outerHTML');
+			doc.write(qrHtml);
+			});
+			doc.write(`</div>`);
+		 }
+		  doc.write(`
+			  <script>
+				  window.onload = function() {
+					  window.print();
+					  window.onafterprint = function() { window.parent.document.body.removeChild(window.frameElement); }
+				  };
+			  <\/script>
+			  </body>
+			  </html>
+		  `);
+		  doc.close();
+	});
+
+	$('#reset').on('click',function()
+	{
+		 $('#qrContainer').empty();
+		 assetData.forEach((item) => {
+			 if (item.isSelected === true)
+			 {
+				item.isSelected = false;
+			 }
+			 $('#selectedAssetsCount').text('')
+		 });
+	})
+
+	function OpenModal() {
+		$('#viewBtn').hide();
+		$('#closeBtn').show();
+		$('.checkboxContainer').css({
+			"zIndex": "999",
+			"position": "fixed",
+			"top": "50%",
+			"left": "50%",
+			"background": "white",
+			"padding": "20px",
+			"borderRadius": "10px",
+			"boxShadow": "0px 4px 10px rgba(0, 0, 0, 0.2)",
+			"transform": "translate(-50%, -50%)",
+			"overflow": "auto"
+		});
+		if ($(window).width() < 768) {
+			$('.checkboxContainer').css({
+				"width": "90%",
+				"height": "80vh",
+				"max-width": "90%",
+				"max-height": "80vh"
+			});
+			$('#assetList').css({
+				"max-height": "55vh",
+				"width": "100%",
+				"max-width": "100%"
+			});
+		} else {
+			$('.checkboxContainer').css({
+				"width": "80%",
+				"height": "80vh",
+				"max-width": "800px"
+			});
+			$('#assetList').css({
+				"max-height": "65vh",
+				"width": "100%",
+				"max-width": "100%"
+			});
+		}
+
+		$('.customOpacity').css({
+			"opacity": "0.2",
+		});
+	}
+
+	$('#selectAllAssets').change(function() {
+		if (this.checked) {
+			$('.chkRow').prop('checked', true);
+		} else {
+			$('.chkRow').prop('checked', false);
+		}
+	});
+
+	$('.chkRow').change(function() {
+		$('#selectAllAssets').prop('checked', false);
+	});
+
+</script>
+

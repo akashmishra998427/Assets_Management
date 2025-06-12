@@ -1,0 +1,189 @@
+﻿@{
+	ViewData["Title"] = "addComplaint";
+	Layout = "~/Views/Shared/Productionlayout.cshtml";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<div class="container container-fluid">
+	<div class="overflow-hidden">
+		<div class="p-0">
+			<div class="card" style="margin-top:165px">
+				<div class="card shadow-lg">
+					<div class="card-body">
+						<h3 class="fw-bold text">Add Complaint</h3>
+						<p><strong>Ticket Raised Date:</strong> <span id="date"></span></p>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label fw-bold">Machine Code:</label>
+									<input type="text" id="machine_code" class="form-control" placeholder="Machine code">
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label fw-bold">Machine Name/Model:</label>
+									<input type="text" class="form-control" id="MachineName_Model" value="N/A" readonly>
+								</div>
+
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label fw-bold">Reason:</label>
+									<select class="form-select" id="ddlresion"></select>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label fw-bold">Status:</label>
+									<select class="form-select" id="ddlStatus">
+										<option selected class="fw-bold">Select Status</option>
+										<option class="fw-bold" value="Open">Open</option>
+										<option class="fw-bold" value="In Progress">In Progress</option>
+										<option class="fw-bold" value="Resolved">Resolved</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<input id="lineid" type="hidden" />
+						<input id="EnterBy" type="hidden" />
+						<input id="ModelNo" type="hidden" />
+						<input id="style" type="hidden" />
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label fw-bold">Remark:</label>
+									<textarea class="form-control" id="Remark" placeholder="Enter Remark"></textarea>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label fw-bold">Solution:</label>
+									<textarea class="form-control" id="Solution" placeholder="Enter Solution"></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="mb-3 d-flex gap-5">
+									<label class="form-label fw-bold" for="file">Upload Picture</label>
+									<input type="file" class="image-upload" id="imageUpload" accept="image/*;capture=camera">
+								</div>
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+								<button class="btn btn_bg btn-sm shadow-sm p-2 custom-btn text-light fw-bold ps-2" onclick="convertToBase64()" id="BtnSubmit">Submit</button>
+								<a class="btn btn-secondary btn-sm shadow-sm p-2 custom-btn fw-bold ps-2" href="@Url.Action("Production","Prod_Dashboard")">Back</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+    
+	let authToken = localStorage.getItem("authToken");
+	
+	if (!authToken)
+	{
+		window.location.href = "/Login/Login";
+	}
+	
+	$(document).ready(function () {
+		const date = new Date();
+		let day = date.getDate();
+		let month = date.toLocaleString('en-us', { month: 'short' });
+		let year = date.getFullYear();
+		let currentDate = `${day} ${month} ${year}`;
+		$('#date').html(currentDate);
+		bindResions();
+	});
+	
+	function bindResions() {
+		let Baseurl = "@ViewBag.Apiurl";
+		let url = Baseurl + "Stitch/GetRejectReason?Type=Machine&StyleId=0&Desc=";
+		BindDropdown(url,"ddlresion",authToken,"Reason","RemarkText","Resions")
+	}
+	
+	function convertToBase64() {
+		var fileInput = $('#imageUpload').get(0);
+		if (!fileInput || !fileInput.files || !fileInput.files.length) {
+			console.error("No file selected.");
+			return;
+		}
+		var file = fileInput.files[0];
+		var reader = new FileReader();
+
+		reader.onload = function (event) {
+			var base64String = event.target.result.split(',')[1];
+			ManageAddComplaint(base64String);
+		};
+		reader.onerror = function (error) {
+			console.error("Error reading file:", error);
+		};
+		reader.readAsDataURL(file);
+	}
+	
+	function ManageAddComplaint(base64Image) {
+		  let Baseurl = "@ViewBag.Apiurl";
+		var ApiUrl = `${Baseurl}MachineProd/SaveData`;
+		var requestData = {
+			LineId: $('#lineid').val(),
+			Compcode: $('#MachineName_Model').val(),
+			MachineCode: $('#machine_code').val(),
+			Style: $('#style').val(),
+			Problem: $('#Remark').val(),
+			EnteredBy: sessionStorage.getItem('UserName'),
+			Imagedata: base64Image || null
+		};
+		$.ajax({
+			url: ApiUrl,
+			type: "POST",
+			contentType: "application/json",
+			data: JSON.stringify(requestData),
+			success: function (response) {
+				  showToast("Complaint saved successfully!", "success");
+			},
+			error: function (xhr, status, error) {
+					console.error("Error adding complaint:", error);
+					showToast("Please try again.", "error");
+			}
+		});
+	}
+	
+	$('#machine_code').keyup(function () {
+		let Baseurl = "@ViewBag.Apiurl";
+		let machine_code = $('#machine_code').val().trim();
+		let URL = `${Baseurl}MachineProd/GetMachineDetail?MachineCode=${machine_code}`;
+		if (machine_code.length === 0) {
+			$('#MachineName_Model, #EnterBy, #ModelNo, #lineid').val('N/A');
+			return;
+		}
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			success: function (data) {
+				if (data && Array.isArray(data) && data.length > 0) {
+					let machineData = data[0];
+					$('#MachineName_Model').val(machineData.CompCode || "N/A");
+					$('#EnterBy').val(machineData.EnterBy || "");
+					$('#ModelNo').val(machineData.ModelNo || "N/A");
+					$('#lineid').val(machineData.LineId || "N/A");
+				} else {
+					$('#MachineName_Model, #EnterBy, #ModelNo, #lineid').val("N/A");
+				}
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching machine details:", error);
+				$('#MachineName_Model, #EnterBy, #ModelNo, #lineid').val("Error fetching data");
+			}
+		});
+	});
+
+</script>

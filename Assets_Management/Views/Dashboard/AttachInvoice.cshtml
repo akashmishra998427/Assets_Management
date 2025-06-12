@@ -1,0 +1,381 @@
+﻿@{
+    ViewData["Title"] = "AttachInvoice";
+    Layout = "~/Views/Shared/bkancklayout.cshtml";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<link href="~/css/attachinvoice.css" rel="stylesheet" />
+
+<div style="background-color: #f5f6f8;">
+    <div class="container-fluid">
+        <div class="row p-2">
+           <div class="col-md-6">
+               
+           </div>
+           <div class="col-md-6 text-end">
+               <div class="row">
+                   <div class="col-sm-2">
+
+                   </div>
+                   <div class="col-sm-6">
+                      <div class="input-group">
+                          <input type="text" class="form-control" id="customSearchBox" placeholder="Search assets..." />
+                      </div>
+                   </div>
+                   <div class="col-sm-4 d-flex justify-content-end">
+                         <button class="btn btn-primary" onclick="ShowModalValidation()">
+                             <i class="fas fa-plus me-2"></i><span>Attach Invoice</span>
+                         </button>
+                   </div>
+               </div>
+           </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div id="talAssetDetails"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Invoice Modal -->
+<div class="modal fade" id="InvoiceModal" tabindex="-1" aria-labelledby="InvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 50%;">
+        <div class="modal-content">
+            <div class="modal-header bg-light d-flex justify-content-between">
+                <h5 class="modal-title fw-bold" id="tbtDetailDetailModal">Invoice Details</h5>
+                <div class="d-flex gap-3">
+                    <button type="button" id="" class="btn btn-outline-danger rounded" data-bs-dismiss="modal" aria-label="Close" style="font-size:24px">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <label for="txtBillNo" class="form-label">Bill No <sub class="text-danger">*</sub></label>
+                    <input type="text" class="form-control" id="txtBillNo" placeholder="Enter Invoice Number" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="BillDate" class="form-label">Bill Date <sub class="text-danger">*</sub></label>
+                    <input type="date" class="form-control" id="BillDate" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Upload Invoice <sub class="text-danger">*</sub> </label><br />
+                    <label class="custom-upload" onclick="triggerUpload()">
+                        <i class="fas fa-upload me-2"></i>Browse
+                    </label>
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple />
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveInvoice()">
+                    <i class="fas fa-save me-1"></i> Save Invoice
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let urlParams = new URLSearchParams(window.location.search);
+    let AssetType = urlParams.get('AssetType');
+    let MenuID = urlParams.get('MenuID');
+    let selectedRows = [];
+    let dataTable; 
+
+    function triggerUpload() {
+        document.getElementById('fileInput').click();
+    }
+
+    $(document).ready(function(){
+         BindAssetDetails();
+
+         $('#customSearchBox').on('keyup', function() {
+             if (dataTable) {
+                 dataTable.search(this.value).draw();
+             }
+         });
+
+         $('#clearSearch').on('click', function() {
+             $('#customSearchBox').val('');
+             if (dataTable) {
+                 dataTable.search('').draw();
+             }
+         });
+    });
+
+    function ShowModalValidation(){
+       if(selectedRows.length<=0){
+          showToast('Please select at least one asset from the table to attach invoice!','error')
+          return
+       }
+       else{
+          $('#InvoiceModal').modal('show');
+       }
+    }
+
+    function BindAssetDetails() {
+        let Payload = {
+            AssetType: AssetType || 'C'
+        };
+        $.ajax({
+            url: `/Dashboard/BindInvoiceDetails`,
+            method: "POST",
+            data: JSON.stringify(Payload),
+            contentType: 'application/json',
+            dataType: 'json',
+            beforeSend:function(){
+               $('#DV_SoftData').append(`<div class="modal" id="loaderModal" tabindex="-1" role="dialog" style="display: block; background: rgba(0,0,0,0.5);">
+                  <div class="d-flex justify-content-center text-light align-items-center" style="height: 100vh;">
+                      <span class="">Loading...</span>
+                      <div class="spinner-border " role="status">
+                      </div>
+                  </div>
+               </div>`);
+            },
+            success: function (data) {
+                if (!data || data.length === 0) {
+                    $('#talAssetDetails').html('<p class="text-danger">No data available.</p>');
+                    return;
+                }
+            
+                function formatDateValue(value, columnName) {
+                    if ((columnName === 'Bill_Date' || columnName === 'UPTO') &&
+                        value && typeof value === 'string' &&
+                        value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)) {
+                        return value.split('T')[0];
+                    }
+                    return value;
+                }
+            
+                let headers = Object.keys(data[0]);
+                let html = `<table class="table table-bordered table-striped custom-table datatable w-100 dataTable" id="tblAssets">
+                               <thead>
+                                   <tr>
+                                       <th><input type="checkbox" id="selectAll" class="form-check"/></th>`;
+                headers.forEach(header => {
+                     html += `<th class="text-center">${header}</th>`;
+                });
+                html += `</tr>
+                        </thead>
+                        <tbody>
+                `;
+                data.forEach((row, rowIndex) => {
+                    html += `<tr>
+                                <td><input type="checkbox" class="rowCheckbox" data-index="${rowIndex}"/></td>
+                    `;
+            
+                    headers.forEach(key => {
+                        let value = row[key];
+                        let displayValue = formatDateValue(value, key);
+                        let isNumeric = typeof displayValue === 'number' || (!isNaN(displayValue) && displayValue !== '');
+                        let alignmentClass = isNumeric ? 'text-left' : 'text-right';
+                        html += `<td class="${alignmentClass}">${displayValue}</td>`;
+                    });
+            
+                    html += `</tr>`;
+                });
+            
+                html += `</tbody></table>`;
+                $('#talAssetDetails').html(html);
+                
+                function getCurrentSelectedBillNo() {
+                    if (selectedRows.length === 0) return null;
+                    return selectedRows[0].Bill_No;
+                }
+                
+                function canSelectBillNo(billNo) {
+                    const currentBillNo = getCurrentSelectedBillNo();
+                
+                    if (currentBillNo === null) return true;
+                
+                    if (!billNo || billNo === '' || billNo === null) return true;
+                
+                    if (!currentBillNo || currentBillNo === '' || currentBillNo === null) return true;
+                
+                    if (currentBillNo && billNo) {
+                        return currentBillNo === billNo;
+                    }
+                
+                    return true;
+                }
+                
+                $('#selectAll').on('change', function () {
+                    if (this.checked) {
+                
+                        const billNumbers = data.map(row => row.Bill_No).filter(bill => bill && bill !== '');
+                        const uniqueBillNumbers = [...new Set(billNumbers)];
+                
+                        if (uniqueBillNumbers.length > 1) {
+                            this.checked = false;
+                              fireSweetAlert('Cannot select all rows because they contain different bill numbers.','error')
+                            return;
+                        }
+                
+                        $('.rowCheckbox').prop('checked', true);
+                
+                        selectedRows = [];
+                        data.forEach(row => {
+                            selectedRows.push(row);
+                        });
+                
+                        const firstRowWithBill = data.find(row => row.Bill_No && row.Bill_No !== '');
+                        if (firstRowWithBill) {
+                            $('#txtBillNo').val(firstRowWithBill.Bill_No);
+                            $('#BillDate').val(toDateInputFormat(firstRowWithBill.Bill_Date));
+                        }
+                    } else {
+                        $('.rowCheckbox').prop('checked', false);
+                        selectedRows = [];
+                        $('#txtBillNo').val('');
+                        $('#BillDate').val('');
+                    }
+                });
+                
+                $('#tblAssets').on('change', '.rowCheckbox', function () {
+                    const rowIndex = $(this).data('index');
+                    const rowData = data[rowIndex];
+                    const billNo = rowData.Bill_No;
+                
+                    if (this.checked) {
+                
+                        if (!canSelectBillNo(billNo)) {
+                            this.checked = false;
+                            const currentBillNo = getCurrentSelectedBillNo();
+                            let message = '';
+                            if (currentBillNo && billNo && currentBillNo !== billNo) {
+                                message = `You cannot select rows with different bill numbers. Currently selected bill number: ${currentBillNo}.`;
+                            }
+                             fireSweetAlert(message,'error')
+                            return;
+                        }
+                        if (!selectedRows.some(item => JSON.stringify(item) === JSON.stringify(rowData))) {
+                            selectedRows.push(rowData);
+                
+                            if (selectedRows.length === 1 || rowData.Bill_No) {
+                                $('#txtBillNo').val(rowData.Bill_No || '');
+                                $('#BillDate').val(rowData.Bill_Date ? toDateInputFormat(rowData.Bill_Date) : '');
+                            }
+                        }
+                    } else {
+                
+                        selectedRows = selectedRows.filter(item => JSON.stringify(item) !== JSON.stringify(rowData));
+                
+                        if (selectedRows.length === 0) {
+                            $('#txtBillNo').val('');
+                            $('#BillDate').val('');
+                        }
+                    }
+                
+                    const totalCheckboxes = $('.rowCheckbox').length;
+                    const checkedCheckboxes = $('.rowCheckbox:checked').length;
+                    $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+                
+                    console.log("Selected Rows:", selectedRows);
+                });
+                
+                dataTable = $('#tblAssets').DataTable({
+                    paging: true,
+                    searching: true, 
+                    dom: 'lrtip', 
+                    ordering: false,
+                    pageLength: 100,
+                    lengthMenu: [100, 500, 750, 1000, 1500, 2000, 2500, 3000, "All"],
+                    scrollCollapse: false,
+                    scrollY: "370px",
+                    info: true,
+                    autoWidth: false,
+                    fixedHeader: true,
+                });
+                
+                setTimeout(function () {
+                    dataTable.columns.adjust().draw();
+                    if (dataTable.fixedHeader) {
+                       dataTable.fixedHeader.adjust()
+                    }
+                }, 300);
+            },
+            error: function () {
+                $('#talAssetDetails').html('<p class="text-danger">Failed to load asset details.</p>');
+            },
+            complete: function () {
+                $('#loaderModal').remove();
+            }
+        });
+     }
+
+    function saveInvoice() {
+        const InvoiceNumber = $('#txtBillNo').val().trim();
+        const InvoiceDate = $('#BillDate').val();
+        const fileInput = $('#fileInput')[0];
+
+        if (!InvoiceNumber) {
+            showToast("Please Enter Invoice Number", 'error');
+            return;
+        }
+
+        if (!InvoiceDate) {
+            showToast("Please Enter Date", 'error');
+            return;
+        }
+
+        if (!fileInput || fileInput.files.length === 0) {
+            showToast("Please Upload Invoice Image", 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('Entity.InvoiceNumber', InvoiceNumber);
+        formData.append('Entity.Date', InvoiceDate);
+        formData.append('ImageFile', fileInput.files[0]);
+
+        selectedRows.forEach((row, index) => {
+
+            if (row.CPU_ASSET_CODE) {
+               formData.append(`SelectedAssetCodes[${index}]`, row.CPU_ASSET_CODE);
+            }
+
+        });
+
+        const $saveButton = $('button[onclick="saveInvoice()"]');
+        const originalText = $saveButton.html();
+        $saveButton.html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...').prop('disabled', true);
+
+        $.ajax({
+            url: `/Dashboard/SaveAttachedInvoice`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+
+                showToast('Invoice saved successfully!','success')
+                $('#txtBillNo').val('');
+                $('#BillDate').val('');
+                $('#fileInput').val('');
+                $('#selectedFileName').remove();
+
+                selectedRows = [];
+                $('.rowCheckbox').prop('checked', false);
+                $('#selectAll').prop('checked', false);
+
+                $('#InvoiceModal').modal('hide');
+
+                BindAssetDetails();
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = '';
+                showToast('An error occurred while saving the invoice.','error')
+                console.error('Error:', error);
+            },
+            complete: function() {
+                $saveButton.html(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+</script>

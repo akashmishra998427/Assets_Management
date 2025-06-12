@@ -1,0 +1,107 @@
+﻿@{
+    ViewData["Title"] = "Audit_PC_Data";
+    Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+<link rel="stylesheet" href="~/jquery/jQueryUi.css">
+<script src="~/jquery/jQueryUi.js"></script>
+<style>
+    .card-header {
+        border-bottom: 2px solid #ddd;
+    }
+    .form-label {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+    }
+    .form-control {
+        padding: 10px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        transition: border 0.2s ease-in-out;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+    }
+    .btn {
+        font-size: 14px;
+        padding: 10px 16px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+    .btn:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+    }
+    .w-45 {
+        width: 48%;
+    }
+    @@media (max-width: 768px) {
+        .col-lg-3, .col-lg-4{
+          width: 100% !important;
+        }
+        .d-flex {
+            flex-direction: column !important;
+        }
+        .gap-3 {
+            gap: 1rem;
+        }
+        .w-45 {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="overflow-hidden ps-0">
+    <div class="card shadow-sm" style="min-height:645px;">
+        <div class="card-header bg-light text-black">
+            <div class="d-flex align-items-center justify-content-between">
+                <h4 class="fw-bold m-0">Audit PC Data</h4>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="container-fluid">
+                <div class="row mb-4">
+
+                    <div class="col-lg-3 mb-3">
+                        <label for="ddlSelect" class="form-label">Select Software</label>
+                        <select class="form-control" id="ddlSelect" aria-label="Software Dropdown">
+                            <option value="Adobe">Adobe</option>
+                            <option value="Corel">Corel</option>
+                            <option value="Office">Office</option>
+                            <option value="Open Office">Open Office</option>
+                            <option value="Window">Window</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4 mb-3 d-flex gap-3 flex-wrap">
+                        <div class="w-45">
+                            <label for="frmDate" class="form-label">From Date</label>
+                            <input type="date" id="frmDate" class="form-control" placeholder="Start date" />
+                        </div>
+
+                        <div class="w-45">
+                            <label for="toDate" class="form-label">To Date</label>
+                            <input type="date" id="toDate" class="form-control" placeholder="End date" />
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 mb-3 d-flex align-items-end gap-3">
+                        <div class="btn btn-success text-light fw-bold" id="btnShowData">
+                            <i class="fa-regular fa-eye"></i> Show Data
+                        </div>
+                        <div class="btn btn-secondary text-light fw-bold" id="btnRefresh">
+                            <i class="fas fa-sync-alt me-2"></i> Refresh
+                        </div>
+                    </div>
+
+                </div>
+                <div id="DV_SoftData" class="mt-4">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

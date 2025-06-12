@@ -1,0 +1,972 @@
+﻿@{
+	ViewData["Title"] = "Assets Transfer";
+	Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+
+<style>
+	.select2-container .select2-selection--single {
+		height: 35px !important;
+		font-size: 15px !important;
+		padding: 0.375rem 0.75rem !important;
+		border: 1px solid #ccc !important;
+		border-radius: 0.25rem !important;
+		padding: 10px;
+	}
+	.select2-container--default .select2-selection--single .select2-selection__rendered {
+		line-height: 1.5 !important;
+	}
+	#ddlMenuTransfer {
+		max-height: 200px;
+		overflow-y: auto;
+		width: 100%;
+		border: 1px solid #ccc;
+	}
+	#ddlPremisesSelect {
+		max-height: 200px;
+		overflow-y: auto;
+		width: 100%;
+		border: 1px solid #ccc;
+	}
+	#ddlTransferredSelect {
+		max-height: 200px;
+		overflow-y: auto;
+		width: 100%;
+		border: 1px solid #ccc;
+	}
+	#ddlDepartmentSelect {
+		max-height: 200px;
+		overflow-y: auto;
+		width: 100%;
+		border: 1px solid #ccc;
+	}
+	#ddlReportingSelect {
+		max-height: 200px;
+		overflow-y: auto;
+		width: 100%;
+		border: 1px solid #ccc;
+	}
+	#ddlMenuTransfer{
+		position: absolute;
+		inset: 0px auto auto 0px;
+		margin: 0px;
+		transform: translate(2px, 40px) !important;
+	}
+	#ddlPremisesSelect {
+		position: absolute;
+		inset: 0px auto auto 0px;
+		margin: 0px;
+		transform: translate(2px, 40px) !important;
+	}
+	#ddlDepartmentSelect {
+		position: absolute;
+		inset: 0px auto auto 0px;
+		margin: 0px;
+		transform: translate(2px, 40px) !important;
+	}
+	.dropdown-item{
+		width: 0% !important;
+	}
+	.Bgcolour{
+		background-color:white;
+		border-radius:15px;
+		z-index:9999;
+		margin-top:5%;
+	}
+</style>
+<link rel="stylesheet" href="~/jquery/jQueryUi.css">
+<script src="~/jquery/jQueryUi.js"></script>
+<div class="overflow-hidden position-relative">
+	<div class="ps-0 justify-content-center align-content-center">
+		<div class="Bgcolour" style="min-height:645px;">
+			<div class="text-black">
+				<div class="row text-center">
+					<h4 class="mt-2 fw-bold">Assets Transfer</h4>
+				</div>
+			</div>
+			<div class="">
+				<div class="container-fluid">
+					<div id="DV_SoftData" class="row d-flex gap-3 align-content-center justify-content-center">
+						<input type="hidden" id="hdnLocation" />
+						<input type="hidden" id="HEngineerName" />
+						<div class="col-md-3 Bgcolour">
+							<div class="mb-3">
+								<div class="text-black">
+									<strong>Transfer From</strong>
+								</div>
+								<div class="">
+									<div class="mb-3">
+										<label class="form-label fw-bold" for="chkHistory">History:</label>
+										<input type="checkbox" id="chkHistory" class="form-check-input" onchange="BindHistory()" />
+									</div>
+									<div class="mb-3" id="transferFromDropdown">
+										<label class="form-label fw-bold" for="ddlTransfer">Transferred From:</label>
+										<div class="input-group">
+											<input type="text" class="form-control dropdown-toggle" data-bs-toggle="dropdown" id="ddlTransfer" placeholder="Select Transfer From" style="border-right:none" autocomplete="off">
+											<button type="button" class="btn border dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-left:none;background-color:#f8f9fa"></button>
+											<ul class="dropdown-menu" id="ddlMenuTransfer"></ul>
+										</div>
+									</div>
+									<div class="chkAllAsset">
+										<div class="d-flex" style="margin-left:16px">
+											<input type="checkbox" class="form-check" id="chkAllAsset" style="margin: -6px 20px 0 0;"/>
+											<lable class="form-label">Select All</lable>
+										</div>
+										<div class="mb-3 d-flex flex-column gap-2" id="bindAssetDetails" style="max-height: 400px; max-width:360px; overflow-y: auto; margin-top:3%;">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-8 Bgcolour">
+							<div class="mb-3">
+								<div class="text-black d-flex justify-content-between">
+									<div><strong>Transfer To</strong></div>
+									<div>
+										<div class="btn btn-success" id="btnRefresh" onclick="RefreshButtoClick()">
+											<i class="fa-solid fa-arrows-rotate"></i> Refresh
+										</div>
+										<div class="btn btn-primary" id="btnTransfer" onclick="transferAsset()">
+											<i class="fa-solid fa-money-bill-transfer"></i> Transfer
+										</div>
+									</div>
+								</div>
+								<div class="">
+									<div class="mb-3">
+										<label class="form-label me-2 fw-bold" for="chkEdp">EDP Stock</label>
+										<input id="chkEdp" type="checkbox" class="form-check-input" onchange="EdpStock()" />
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="ddlPremises">Installed Premises:</label>
+											<div class="input-group">
+												<input type="text" class="form-control dropdown-toggle" data-bs-toggle="dropdown" id="ddlPremises" placeholder="Select Premises" style="border-right:none">
+												<button type="button" class="btn dropdown-toggle border" data-bs-toggle="dropdown" aria-expanded="false" style="border-left:none;background-color:#f8f9fa"></button>
+												<ul class="dropdown-menu" id="ddlPremisesSelect"></ul>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="ddlTransferred">Transferred To:</label>
+											<div class="input-group">
+												<input type="text" class="form-control dropdown-toggle" data-bs-toggle="dropdown" id="ddlTransferred" placeholder="Select Transferred To" style="border-right:none">
+												<button type="button" class="btn dropdown-toggle border" data-bs-toggle="modal" data-bs-target="#EmployeeMaster" aria-expanded="false" style="border-left:none;background-color:#f8f9fa"> </button>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="Login">Login Id:</label>
+											<input type="text" id="Login" class="form-control" placeholder="Enter Login ID" />
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="ddlDepartment">Department:</label>
+											<div class="input-group">
+												<input type="text" class="form-control dropdown-toggle" data-bs-toggle="dropdown" id="ddlDepartment" placeholder="Select Department" style="border-right:none">
+												<button type="button" class="btn dropdown-toggle border" data-bs-toggle="dropdown" aria-expanded="false" style="border-left:none;background-color:#f8f9fa"></button>
+												<ul class="dropdown-menu" id="ddlDepartmentSelect"></ul>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="Email">Email Id:</label>
+											<input type="text" id="Email" class="form-control" placeholder="Enter Email ID" />
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="GIMSId">GIMS Id:</label>
+											<input type="text" id="GIMSId" class="form-control" placeholder="Enter GIMS ID" />
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="VFMID">VFM Id:</label>
+											<input type="text" id="VFMID" class="form-control" placeholder="Enter VFM ID" />
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="PadsId">Pads Id:</label>
+											<input type="text" id="PadsId" class="form-control" placeholder="Enter Pads ID" />
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="ddlReporting">Reporting To:</label>
+											<div class="input-group">
+												<input type="text" class="form-control dropdown-toggle" data-bs-toggle="dropdown" id="ddlReporting" placeholder="Select Reporting To" style="border-right:none">
+												<button type="button" class="btn dropdown-toggle border" data-bs-toggle="dropdown" aria-expanded="false" style="border-left:none;background-color:#f8f9fa"></button>
+												<ul class="dropdown-menu" id="ddlReportingSelect"></ul>
+											</div>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="Mobile">Mobile No:</label>
+											<input type="text" id="Mobile" class="form-control" placeholder="Enter Mobile No" />
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="IPAddress">IP Address:</label>
+											<input type="text" id="IPAddress" class="form-control" placeholder="Enter IP Address" />
+										</div>
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="ContactExt">Contact Ext. No.:</label>
+											<input type="text" id="ContactExt" class="form-control" placeholder="Enter Extension no.." />
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4">
+											<label class="form-label fw-bold" for="InstalledDate">Installed Date:</label>
+											<input type="date" id="InstalledDate" class="form-control" placeholder="Select Date" />
+										</div>
+										<div class="col-md-8">
+											<label class="form-label fw-bold" for="InstalledDate">Remark:</label>
+											<textarea id="txtRemark" class="form-control" placeholder="Remark.." style="height:12px"></textarea>
+										</div>
+									</div>
+									<div class="checkbox" style="width: 60px; display: none">
+										<label>
+											<input type="checkbox" id="ChkScrapTransfer" value="Scrap" /><i class="input-helper"></i>Scrap
+										</label>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-5">
+											<h4 id="headingAld">Already Allotted Assets to User</h4>
+										</div>
+										<div class="col-md-3"></div>
+										<div class="col-md-4">
+											<div class="row mb-1 fw-bold" id="aldDept"></div>
+											<div class="row fw-bold" id="aldDesign"></div>
+										</div>
+									</div>
+									<div class="" id="AssetsNAME" style="width:300px"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="AssetDetails" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" style="max-width: 60%;">
+			<div class="modal-content" style="height: 60%; display: flex; flex-direction: column;">
+				<div class="modal-header">
+					<h5 class="modal-title fw-bold" id="detailModalLabel">Asset Detail</h5>
+					<div style="margin-left: 76%;" class="d-flex g-2">
+						<lable style="margin-right: 10px;">All</lable>
+						<input type="checkbox" id="chkAll" />
+					</div>
+					<button type="button" id="BtnClose" class="btn btn-outline-danger rounded  " data-bs-dismiss="modal" aria-label="Close" style="margin-left: 2%;">
+						<i class="fas fa-times"></i> Close
+					</button>
+				</div>
+				<div class="modal-body" style="flex-grow: 1; overflow-y: auto;">
+					<div class="table-responsive" style="margin-top:15px">
+						<table style="width: 100%;" class="display nowrap table-bordered datatable" id="tblAssetDetail">
+							<thead class="bg-light">
+								<tr id="tblAssetDetailHeader" class="font_SIZE"></tr>
+							</thead>
+							<tbody id="tblAssetDetailBody" class="font_SIZE">
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="EmployeeMaster" tabindex="-1" aria-labelledby="EmployeeMaster" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" style="max-width: 60%;">
+			<div class="modal-content" style="height: 60%; display: flex; flex-direction: column;">
+				<div class="modal-header">
+					<h5 class="modal-title fw-bold" id="EmployeeMaster">Search Employee</h5>
+					<button type="button" id="BtnCloseEmployee" class="btn btn-outline-danger rounded  " data-bs-dismiss="modal" aria-label="Close" style="margin-left: 77%;">
+						<i class="fas fa-times"></i> Close
+					</button>
+				</div>
+				<div class="modal-body" style="flex-grow: 1; overflow-y: auto;">
+					<div class="row">
+						<div class="col-md-3">
+							<select id="ddlEmployee" class="form-select">
+								<option value="1">Select Employee Status</option>
+								<option value="1">Active</option>
+								<option value="0">De-Active</option>
+								<option value="2">Both</option>
+							</select>
+						</div>
+						<div class="col-md-8">
+							<input type="text" class="form-control" placeholder="Enter Employee Name" id="txtAllSearch" />
+						</div>
+						<div class="col-md-1">
+							<div class="btn btn-outline-success" onclick="BindTransferredTo()">
+								<i class="fa-solid fa-magnifying-glass"></i>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="margin-top: 20px">
+						<table style="max-height:645px;" class="display nowrap table-bordered datatable" id="machineTable">
+							<thead class="bg-light">
+								<tr id="tableHeaders" class="font_SIZE"></tr>
+							</thead>
+							<tbody id="tableBody" class="font_SIZE">
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	let ApiBaseUrl = '@ViewBag.ApiBasurl'
+	let authToken = localStorage.getItem("authToken");
+	$('#hdnLocation').val('0')
+	$('#headingAld').hide()
+	let ReportType =""
+	let AssetCode=""
+	let Location =   $('#hdnLocation').val()
+	var labelText=""
+	let selectedValue=""
+	let selectedText=""
+	let dropdownData=[]
+	let checkedAsset =""
+	let totalAssets
+	let engName = sessionStorage.getItem("UserName");
+
+	$('.chkAllAsset').hide()
+	
+	$(document).ready(function() {
+		$(".datepicker").datepicker();
+		BindPremises()
+		BindReporting()
+		BindTransferdFrom(Location);
+	});
+	
+	function BindTransferdFrom(Location) {
+		let dropdown = $('#ddlMenuTransfer');
+		let searchTextbox = $('#ddlTransfer');
+		let dropdownData = [];
+		let topLoadData = [];
+		searchTextbox.attr("placeholder", "Please wait, loading...").prop("disabled", true);
+		let URL = `${ApiBaseUrl}/Asset/BindFromUser?Location=${Location}`;
+		$.ajax({
+			url: URL,
+			method: "GET",     
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function(response) {
+				dropdownData = response || [];
+				topLoadData = dropdownData.slice(0, 100);
+				searchTextbox.attr("placeholder", "Please Select Transfer from").prop("disabled", false);
+				populateDropdown(dropdown, topLoadData);
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching asset details:", error);
+			}
+		});
+
+		searchTextbox.on('keyup', function() {
+			let searchText = searchTextbox.val().toLowerCase();
+			if (searchText.length === 0) {
+				searchTextbox.attr("placeholder", "Please wait, loading...").prop("disabled", true);
+				populateDropdown(dropdown, topLoadData);
+				searchTextbox.attr("placeholder", "Please Select Transfer from").prop("disabled", false);
+			} else if (searchText.length >= 1) {
+				let filteredData = dropdownData.filter(item =>
+					(item.DataValue || "N/A").toLowerCase().includes(searchText)
+				);
+				populateDropdown(dropdown, filteredData);
+			}
+		});
+
+		function populateDropdown(dropdown, data) {
+			dropdown.empty();
+			if (data.length === 0) {
+				dropdown.append(`
+					<li><a class="dropdown-item">No Data Available</a></li>
+				`);
+			} else {
+				data.forEach(item => {
+					dropdown.append(`
+						<li>
+							<a class="dropdown-item" data-value="${item.DataId}"
+							   onclick="handleItemClick('${item.DataId}', '${item.DataValue || "N/A"}')">
+								${item.DataValue || "N/A"}
+							</a>
+						</li>
+					`);
+				});
+			}
+		}
+	}
+
+	function handleItemClick(userName, displayValue) {
+		$("#ddlTransfer").val(displayValue).attr("data-selected-value", userName);
+		BindAssetDetails(userName);
+		$('.chkAllAsset').show()
+	}
+
+    function BindPremises() {
+		let URL = `${ApiBaseUrl}/Premises/GetPremises`;
+		let dropdown = $('#ddlPremisesSelect');
+		let searchTextbox = $('#ddlPremises');
+		searchTextbox.html('<li><a class="dropdown-item disabled">Loading...</a></li>');
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function(response) {
+				dropdownData = response;
+				populateDropdown(dropdown, dropdownData);
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching Premises", error);
+				dropdown.html('<li><a class="dropdown-item disabled">Error loading data</a></li>');
+			}
+		});
+		searchTextbox.on('keyup', function() {
+			let searchText = searchTextbox.val().toLowerCase();
+			let filteredData = dropdownData.filter(item =>
+				(item.compCode || "N/A").toLowerCase().includes(searchText)
+			);
+			populateDropdown(dropdown, filteredData);
+		});
+		function populateDropdown(dropdown, data) {
+			dropdown.empty();
+			if (data.length === 0) {
+				dropdown.html('<li><a class="dropdown-item disabled">No results found</a></li>');
+			} else {
+				data.forEach(item => {
+					dropdown.append(`
+						<li>
+							<a class="dropdown-item" data-value="${item.compCode}"
+							   onclick="FilTxtValue('${item.compCode || "N/A"}', '${item.compCode}', 'ddlPremises')">
+								${item.compCode || "N/A"}
+							</a>
+						</li>
+					`);
+				});
+			}
+		}
+	}
+
+	function FilTxtValue(text, value,ddlid) {
+		$(`#${ddlid}`).val(text).attr("data-selected-value", value);
+		if(ddlid=="ddlPremises")
+		{
+		  $('#ddlDepartment').empty()
+		  BindDepartment()
+		}
+	}
+
+	function BindDepartment(unit = null) {
+		debugger;
+		let Premises = $('#ddlPremises').val();
+		if (!Premises) {
+			return;
+		}
+		if (unit == null) {
+			Premises = $('#ddlPremises').val();
+		} else {
+			Premises = unit;
+		}
+		let URL = `${ApiBaseUrl}/Asset/GetDepartment?Unit=${Premises}`;
+		let dropdown = $('#ddlDepartmentSelect');
+		let searchTextbox = $('#ddlDepartment'); 
+		let dropdownData = [];
+		dropdown.html('<li><a class="dropdown-item disabled">Loading...</a></li>');
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function(response) {
+				dropdownData = response;
+				populateDropdown(dropdown, dropdownData);
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching asset details:", error);
+				dropdown.html('<li><a class="dropdown-item disabled">Error loading data</a></li>');
+			}
+		});
+		searchTextbox.on('keyup', function() {
+			let searchText = searchTextbox.val().toLowerCase();
+			let filteredData = dropdownData.filter(item =>
+				(item.DEPARTMENT || "N/A").toLowerCase().includes(searchText)
+			);
+			populateDropdown(dropdown, filteredData);
+		});
+		function populateDropdown(dropdown, data) {
+			dropdown.empty();
+			if (data.length === 0) {
+				dropdown.html('<li><a class="dropdown-item disabled">No results found</a></li>');
+			} else {
+				data.forEach(item => {
+					dropdown.append(`
+						<li>
+							<a class="dropdown-item" data-value="${item.DEPARTMENT}"
+							   onclick="FilTxtValue('${item.DEPARTMENT || "N/A"}', '${item.DEPARTMENT}', 'ddlDepartment')">
+								${item.DEPARTMENT || "N/A"}
+							</a>
+						</li>
+					`);
+				});
+			}
+		}
+	}
+
+    function BindReporting() {
+		let URL = `${ApiBaseUrl}/Asset/BindReporting`;
+		let dropdown = $('#ddlReportingSelect');
+		let searchTextbox = $('#ddlReporting'); 
+		let dropdownData = [];
+		dropdown.html('<li><a class="dropdown-item disabled">Loading...</a></li>');
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function(response) {
+				dropdownData = response;
+				populateDropdown(dropdown, dropdownData);
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching asset details:", error);
+				dropdown.html('<li><a class="dropdown-item disabled">Error loading data</a></li>');
+			}
+		});
+		searchTextbox.on('keyup', function() {
+			let searchText = searchTextbox.val().toLowerCase();
+			let filteredData = dropdownData.filter(item =>
+				(item.Reporting_TO || "N/A").toLowerCase().includes(searchText)
+			);
+			populateDropdown(dropdown, filteredData);
+		});
+		function populateDropdown(dropdown, data) {
+			dropdown.empty();
+			if (data.length === 0) {
+				dropdown.html('<li><a class="dropdown-item disabled">No results found</a></li>');
+			} else {
+				data.forEach(item => {
+					dropdown.append(`
+						<li>
+							<a class="dropdown-item" data-value="${item.Reporting_TO}"
+							   onclick="FilTxtValue('${item.Reporting_TO || "N/A"}', '${item.Reporting_TO}', 'ddlReporting')">
+								${item.Reporting_TO || "N/A"}
+							</a>
+						</li>
+					`);
+				});
+			}
+		}
+	}
+
+	function BindAssetDetails(userName) {
+		let URL = `${ApiBaseUrl}/Asset/BindAsset?UserName=${encodeURIComponent(userName)}&Location=${Location}`;
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function (data) {
+				$('#bindAssetDetails').empty(); 
+
+				if (!data || data.length === 0) {
+					$('#bindAssetDetails').html(`<p class="text-muted">No asset code available for <strong>${userName}</strong></p>`);
+					return;
+				}
+				$.each(data, function (i, v) {
+					let HtmlBody = `
+						<div class="checkbox-container d-flex align-items-center g-3 p-3 border rounded-3" style="background-color:#f8f9fa">
+							<input type="checkbox" id="chk_${v.DataId}" value="${v.DataId}" class="checkbox-option chkAssetCode" style="margin-right: 10px;margin-bottom: 3px;">
+							<label for="chk_${v.DataId}" class="mb-0 flex-grow-1">${v.DataValue || "N/A"}</label>
+							<div style="cursor:pointer;">
+								<span class="text-primary" data-bs-toggle="modal" data-bs-target="#AssetDetails"
+									  onclick="handleLabelClick('${v.DataId}')">
+									${v.DataId}
+								</span>
+								<i class="fa-solid fa-copy ms-2 text-secondary" style="cursor:pointer;"
+								   onclick="copyToClipboard('${v.DataId}')" title="Copy Asset ID"></i>
+							</div>
+						</div>`;
+					$('#bindAssetDetails').append(HtmlBody);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching asset details:", error);
+				$('#bindAssetDetails').html(`<p class="text-danger">Error loading asset details. Please try again.</p>`);
+			}
+		});
+	}
+
+	function bindDataByAssetCode(AssetCode) {
+		debugger
+		let ReportType = $('#chkAll').prop('checked') ? 1 : 0;
+		AssetCode = AssetCode.trim();
+		const URL = `${ApiBaseUrl}/Asset/BindAssetsReport?AssetsCode=${AssetCode}&UserName=&ReportType=${ReportType}`;
+		let loaderRow = `
+			<tr id="loadingRow">
+				<td colspan="100%" class="text-center py-5">
+					<div class="d-flex justify-content-center align-items-center">
+						<div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+							<span class="sr-only">Loading...</span>
+						</div>
+						<div class="ms-3 fs-5 text-muted">Please wait, loading data...</div>
+					</div>
+				</td>
+			</tr>
+		`;
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			beforeSend: function () {
+				$('#tblAssetDetailBody').empty().append(loaderRow);
+			},
+			success: function (data) {
+				if ($.fn.DataTable.isDataTable('#tblAssetDetail')) {
+						$('#tblAssetDetail').DataTable().destroy();
+					}
+				$('#tblAssetDetailHeader').empty();
+				$('#tblAssetDetailBody').empty();
+
+				if (!data || data.length === 0) {
+					$('#tblAssetDetailBody').append('<tr><td colspan="100%" class="text-center">No data available</td></tr>');
+				} else {
+					const headers = Object.keys(data[0]);
+					headers.forEach(header => {
+						$('#tblAssetDetailHeader').append(`<th>${header.replace(/\s+/g, ' ').trim()}</th>`);
+					});
+					data.forEach((item, index) => {
+						let row = `<tr class="rowHeight" id="${index}">`;
+						headers.forEach(header => {
+							let cellData = item[header] || '';
+							row += `<td>${cellData}</td>`;
+						});
+						row += `</tr>`;
+						$('#tblAssetDetailBody').append(row);
+					});
+					const table = $('#tblAssetDetail').DataTable({
+						paging: true,
+						searching: true,
+						ordering: false,
+						scrollCollapse: false,
+						scrollY: "200px",
+						info: false,
+						autoWidth: false,
+						fixedHeader: true,
+					});
+					setTimeout(() => table.columns.adjust().draw(), 100);
+				}
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching data:", error);
+				$('#tblAssetDetailBody').empty().append('<tr><td colspan="100%" class="text-center">Failed to load data. Please try again later.</td></tr>');
+			},
+			complete: function () {
+				$('#loadingRow').remove();
+			}
+		});
+	}
+
+	function handleLabelClick(element)
+	{
+	   labelText =element
+	   bindDataByAssetCode(labelText)
+	}
+
+	function handleImageClick(AssetCode) {
+		let URL = `${ApiBaseUrl}/Asset/GetAssetDataByAssetcode?AssetCode=${AssetCode}`;
+	    let unit = ""
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function(data) {
+				$("#Login").empty();
+				$("#Email").empty();
+				$("#GIMSId").empty();
+				$("#VFMID").empty();
+				$("#PadsId").empty();
+				$("#Mobile").empty();
+				$("#IPAddress").empty();
+				$("#ContactExt").empty();
+				$("#InstalledDate").empty();
+				$("#ddlPremises").empty();
+				$("#ddlTransferred").empty();
+				$("#ddlReporting").empty();
+				$("#ddlDepartment").empty();
+				if (data.length > 0) {
+					$("#ddlPremises").val(data[0].INSTALLED_UNIT || "");
+					unit=data[0].INSTALLED_UNIT || null
+				    $("#ddlTransferred").val(data[0].Employee_Code || "");
+					$("#ddlReporting").val(data[0].Reporting_TO || "");
+					$("#ddlDepartment").val(data[0].DEPARTMENT || "");
+					$("#Login").val(data[0].Login_Id || "");
+					$("#Email").val(data[0].USER_Mail_ID);
+					$("#GIMSId").val(data[0].GIMS_ID || "");
+					$("#VFMID").val(data[0].VFM_ID || "");
+					$("#PadsId").val(data[0].PADS_ID || "");
+					$("#Mobile").val(data[0].MobileNo || "");
+					$("#IPAddress").val(data[0].Ip_No || "");
+					$("#ContactExt").val(data[0].ContactExtNo || "");
+					$("#txtRemark").val(data[0].REMARKS || "");
+					let installDate = data[0].Install_Date ? data[0].Install_Date.split("T")[0] : "";
+					$("#InstalledDate").val(installDate);
+				} else {
+					console.warn("No asset data found.");
+				}
+				BindDepartment(unit)
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching asset data:", error);
+			}
+		});
+	}
+
+	function copyToClipboard(dataId) {
+		navigator.clipboard.writeText(dataId)
+		.then(() => {
+				
+			handleImageClick(dataId);
+		})
+		.catch(err => console.error("Error copying text:", err));
+	}
+
+	function BindHistory() {
+		$('#hdnLocation').val('2');
+		let Location = $('#hdnLocation').val();
+		BindTransferdFrom(Location);
+	}
+
+	$('#chkAll').change(function() {
+		bindDataByAssetCode(labelText);
+	});
+
+	function EdpStock() {
+		if ($('#chkEdp').is(':checked')) {
+			let URL = `${ApiBaseUrl}/Asset/GenerateNewStockNO`;
+			$.ajax({
+				url: URL,
+				method: "GET",
+				dataType: "text",
+				headers: { "Authorization": `Bearer ${authToken}` },
+				success: function (data) {
+					$('#ddlTransferred').val(data);
+					$('#ddlTransferred').prop('disabled', true); 
+				},
+				error: function (xhr, status, error) {
+					console.error(`Error fetching data for EDP checkbox: ${error} (Status: ${xhr.status})`);
+					console.error("Response:", xhr.responseText);
+				}
+			});
+		} else {
+			$('#ddlTransferred').prop('disabled', false);
+			$('#ddlTransferred').val(''); 
+		}
+	}
+
+    function RefreshButtoClick() {
+		BindPremises();
+		BindReporting();
+		BindTransferdFrom();
+		const fieldsToClear = [
+			"#Login", "#Email", "#GIMSId", "#VFMID",
+			"#PadsId", "#Mobile", "#IPAddress",
+			"#ContactExt", "#InstalledDate", "#bindAssetDetails"
+		];
+		fieldsToClear.forEach(selector => $(selector).val(''));
+	}
+
+	function BindTransferredTo() {
+		let EmpName = $('#txtAllSearch').val();
+		let Status = $('#ddlEmployee').val();
+		let F_Name = `''`;
+		let PF_Number = "0";
+		let ESI_number = "0";
+		let CompID = "0";
+		let Premise = $('#ddlPremises').val();
+		if (Premise === "" || Premise === null || Premise === 0) {
+			showToast("Please Select Premise", "error");
+			$('#EmployeeMaster').modal('hide');
+			return;
+		}
+		let URL = `${ApiBaseUrl}/Asset/BindEmployeeMasterDetails?EmpName=${EmpName}&EmployeeStatus=${Status}&F_Name=${F_Name}&PF_Number=${PF_Number}&ESI_number=${ESI_number}&CompID=${CompID}&Premises=${Premise}`;
+		let loaderRow = `
+			<tr id="loadingRow">
+				<td colspan="100%" class="text-center py-5">
+					<div class="d-flex justify-content-center align-items-center">
+						<div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+							<span class="sr-only">Loading...</span>
+						</div>
+						<div class="ms-3 fs-5 text-muted">Please wait, loading data...</div>
+					</div>
+				</td>
+			</tr>
+		`;
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			beforeSend: function () {
+				$('#tableBody').empty().append(loaderRow);  
+			},
+			success: function (data) {
+				if ($.fn.DataTable.isDataTable('#machineTable')) {
+					$('#machineTable').DataTable().destroy();
+				}
+				$('#tableHeaders').empty();  
+				$('#tableBody').empty();  
+				if (!data || data.length === 0) {
+					$('#tableBody').append('<tr><td colspan="100%" class="text-center">No data available</td></tr>');
+				} else {
+					const headers = Object.keys(data[0]);
+					headers.forEach(header => {
+						$('#tableHeaders').append(`<th>${header.replace(/\s+/g, ' ').trim()}</th>`);  
+					});
+					data.forEach((item, index) => {
+						let row = `<tr class="rowHeight" id="${index}">`;
+						headers.forEach(header => {
+							let cellData = item[header] || '';  
+							row += `<td>${cellData}</td>`;
+						});
+						row += `</tr>`;
+						$('#tableBody').append(row);  
+					});
+					const table = $('#machineTable').DataTable({  
+						paging: false,
+						searching: true,
+						ordering: false,
+						scrollCollapse: false,
+						scrollY: "400px",
+						info: false,
+						autoWidth: false,
+						fixedHeader: true,
+					});
+					setTimeout(() => table.columns.adjust().draw(), 100);
+				}
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching data:", error);
+				$('#tableBody').empty().append('<tr><td colspan="100%" class="text-center">Failed to load data. Please try again later.</td></tr>');
+			},
+			complete: function () {
+				$('#loadingRow').remove();  
+			}
+		});
+	}
+
+	$(document).on("click", "#machineTable tbody tr", function () {
+		let rowData = [];
+		$(this).find('td').each(function () {
+			rowData.push($(this).text().trim());
+		});
+		$('#ddlTransferred').val(rowData[4]);
+		$('#ddlReporting').val(rowData[28]);
+		$('#aldDept').text('Department: ' + rowData[10]);
+		$('#aldDesign').text('Designation: ' + rowData[9]);
+		$('#headingAld').show()
+		let userName = rowData[3];
+		let URL = `${ApiBaseUrl}/Asset/BindAsset?UserName=${encodeURIComponent(userName)}&Location=${Location}`;
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			success: function (data) {
+				$('#AssetsNAME').empty(); 
+				$.each(data, function (i, v) {
+					let HtmlBody = `
+						<p>${v.DataValue}</p>`;
+					$('#AssetsNAME').append(HtmlBody);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching data:", error);
+			}
+		});
+		 $('#EmployeeMaster').modal('hide');
+	});
+
+	function transferAsset() {
+		let transferValue = $('#ddlTransfer').val();
+		let Premises = $('#ddlPremises').val();
+		let TargetUser = $('#ddlTransferred').val();
+		let ReportingTo = $('#ddlReporting').val();
+		let FromUser = $('#ddlTransfer').val();
+		let LoginId = $('#Login').val();
+		let Email_ID = $('#Email').val();
+		let GIMS_ID = $('#GIMSId').val();
+		let VFM_ID = $('#VFMID').val();
+		let Pads_ID = $('#PadsId').val();
+		let MobileNO = $('#Mobile').val();
+		let IPAddress = $('#IPAddress').val();
+		let ContactExtNo = $('#ContactExt').val();
+		let InstalledDate = $('#InstalledDate').val();
+		let ScrapRemark = $('#txtRemark').val();
+		let Department = $('#ddlDepartment').val();
+		let Designation = $('#aldDesign').text();
+		let ScrapTransfer = ($('#ChkScrapTransfer').prop('checked') == true ? "1" : "0");
+		let selectedAsset = [];
+		$('.chkAssetCode:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				selectedAsset.push(val);
+			}
+		});
+		if (!transferValue || transferValue == "") {
+			showToast("Please Select Transfer From ?", "error");
+			return;
+		} else if (!Premises || Premises == "") {
+			showToast("Please Select Installed Premises ?", "error");
+			return;
+		} else if (!TargetUser || TargetUser == "") {
+			showToast("Please Select Transfer To ?", "error");
+			return;
+		} else if (!Department || Department == "") {
+			showToast("Please Select Department ?", "error");
+			return;
+		} else if (!ReportingTo || ReportingTo == "") {
+			showToast("Please Select Reporting To?", "error");
+			return;
+		} else if (!selectedAsset || selectedAsset === "") {
+			showToast("Please Select at least one Asset", "error");
+			return;
+		} else if (!Designation || Designation == "") {
+			showToast("Please Select Designation", "error");
+			return;
+		}
+		let URL = `${ApiBaseUrl}/Asset/TransferAsset?selectedAssests=${encodeURIComponent(selectedAsset)}&FromUser=${encodeURIComponent(FromUser)}&TargetUser=${encodeURIComponent(TargetUser)}&Premises=${encodeURIComponent(Premises)}&LoginId=${encodeURIComponent(LoginId)}&Email_ID=${encodeURIComponent(Email_ID)}&GIMS_ID=${encodeURIComponent(GIMS_ID)}&VFM_ID=${encodeURIComponent(VFM_ID)}&Pads_ID=${encodeURIComponent(Pads_ID)}&ReportingTo=${encodeURIComponent(ReportingTo)}&MobileNO=${encodeURIComponent(MobileNO)}&ToUserName=${encodeURIComponent(TargetUser)}&Department=${encodeURIComponent(Department)}&Designation=${encodeURIComponent(Designation)}&EngineerName=${encodeURIComponent(engName)}&IPAddress=${encodeURIComponent(IPAddress)}&InstalledDate=${encodeURIComponent(InstalledDate)}&ScrapTransfer=${encodeURIComponent(ScrapTransfer)}&ScrapRemark=${encodeURIComponent(ScrapRemark)}&ContactExtNo=${encodeURIComponent(ContactExtNo)}`;
+		$.ajax({
+			url: URL,
+			method: 'GET',
+			dataType: "json",
+			contentType: 'application/json',
+			success: function(response) {
+				showToast("Asset Transferred Successfully", "success");
+			},
+			error: function(error) {
+				showToast("Failed to transfer asset, try again!", "error");
+			}
+		});
+	}
+
+	$('#chkAllAsset').change(function() {
+		debugger
+		$('.chkAssetCode').prop('checked', $(this).prop('checked'));
+		totalAssets = $('.chkAssetCode').length;
+		checkedAsset = $('.chkAssetCode:checked').length;
+	});
+
+	$('.chkAssetCode').change(function() {
+		debugger
+		if (!$(this).prop('checked')) {
+
+			$('#chkAllAsset').prop('checked', false);
+		}
+		var totalChecked = $('.chkAssetCode:checked').length;
+		var totalAssets = $('.chkAssetCode').length;
+		if (totalChecked === totalAssets) {
+			$('#chkAllAsset').prop('checked', true);
+		}else{
+			$('#chkAllAsset').prop('checked', false);
+		}
+	});
+
+</script>

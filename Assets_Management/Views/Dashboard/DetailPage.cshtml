@@ -1,0 +1,242 @@
+﻿@{
+    ViewData["Title"] = "DetailPage";
+    Layout = "~/Views/Shared/bkancklayout.cshtml";
+}
+<link href="~/css/detailpagecss.css" rel="stylesheet" />
+<div>
+    <div class="main-container">
+        <div class="detail-card">
+            <div class="search-container" id="searchContainer" style="display: none;">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchBox" class="search-input" placeholder="Search in asset details..." />
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div id="detailData"></div>
+            </div>
+        </div>
+    </div>
+    <div id="ImageModal">
+        
+    </div>
+</div>
+<script>
+    let urlParams = new URLSearchParams(window.location.search);
+    let AssetCode = urlParams.get('AssetCode');
+    let authtoken = '';
+    let RootUrl = "@ViewBag.RootUrl";
+    $(document).ready(function() {
+        console.log('Asset Code:', AssetCode);
+        if (AssetCode) {
+            BindAssetDetailWithCode();
+        } else {
+            showError('No asset code provided in URL parameters');
+        }
+    });
+
+    function BindAssetDetailWithCode() {
+        let URL = `/Dashboard/BindRowDetails`;
+        let payload = {
+            AssetCoode: AssetCode
+        };
+        showRowDetailsTable(URL, 'detailData', 'POST', authtoken, payload);
+    }
+
+    function showRowDetailsTable(URL, sectionID, Method, authToken, payLoad) {
+        showLoader(sectionID);
+        axios({
+            url: URL,
+            method: Method,
+            headers: {
+                'Authorization': 'Bearer ' + authToken,
+                'Content-Type': 'application/json'
+            },
+            data: payLoad
+        })
+        .then(response => {
+            const data = response.data;
+            if (!data || data.length === 0) {
+                showNoResults(sectionID);
+                return;
+            }
+            $('#searchContainer').show();
+            let tableHTML = '<table class="detail-table fade-in" id="PoputDetails"><tbody>';
+                data.forEach((item, index) => {
+                const itemEntries = Object.entries(item);
+                for (let i = 0; i < itemEntries.length; i += 2) {
+                    let key1 = itemEntries[i][0];
+                    let value1 = formatValue(itemEntries[i][1]);
+                    let key2 = itemEntries[i + 1] ? itemEntries[i + 1][0] : '';
+                    let value2 = itemEntries[i + 1] ? formatValue(itemEntries[i + 1][1]) : '';
+                    if (key1 === 'CPU_ASSET_CODE') {
+                        value1 = `<a href="#" onclick="showImage('${itemEntries[i][1]}'); return false;">${value1}</a>`;
+                    }
+                    if (key2 === 'CPU_ASSET_CODE') {
+                        value2 = `<a href="#" onclick="showImage('${itemEntries[i + 1][1]}'); return false;">${value2}</a>`;
+                    }
+                    tableHTML += `
+                        <tr class="detail-row">
+                          <td class="label-cell">${key1}</td>
+                          <td class="value-cell">${value1}</td>
+                          ${key2 ? `
+                              <td class="label-cell">${key2}</td>
+                              <td class="value-cell">${value2}</td>
+                          ` : `
+                              <td class="label-cell"></td>
+                              <td class="value-cell"></td>
+                          `}
+                        </tr>
+                    `;
+                }
+            });
+            tableHTML += '</tbody></table>';
+            $('#' + sectionID).html(tableHTML);
+            setupSearch();
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+            const errorMsg = error.response?.data?.message || error.response?.data || error.message || 'Unknown error occurred';
+            showError(errorMsg);
+        });
+    }
+                                         
+    function showLoader(sectionID) {
+        const loaderHTML = `
+            <div class="loader">
+                <div class="spinner"></div>
+                <div class="loader-text">Loading asset details...</div>
+            </div>
+        `;
+        $('#' + sectionID).html(loaderHTML);
+        $('#searchContainer').hide();
+    }
+
+    function showError(errorMsg) {
+        const errorHTML = `
+            <div class="error-container">
+                <div class="error-alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Error loading data</strong><br>
+                        ${errorMsg}
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#detailData').html(errorHTML);
+        $('#searchContainer').hide();
+    }
+
+    function showNoResults(sectionID) {
+        const noResultsHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h5>No Data Found</h5>
+                <p>No details available for the requested asset.</p>
+            </div>
+        `;
+        $('#' + sectionID).html(noResultsHTML);
+        $('#searchContainer').hide();
+    }
+
+    function setupSearch() {
+        let searchTimeout;
+
+        $('#searchBox').on('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterTableRows();
+            }, 300);
+        });
+    }
+
+    function filterTableRows() {
+        const filter = $('#searchBox').val().toLowerCase().trim();
+        const $rows = $('#PoputDetails tr');
+        let visibleRows = 0;
+
+        $rows.each(function() {
+            const rowText = $(this).text().toLowerCase();
+            const shouldShow = !filter || rowText.includes(filter);
+
+            $(this).toggle(shouldShow);
+            if (shouldShow) visibleRows++;
+        });
+
+        if (visibleRows === 0 && filter) {
+            if ($('#noSearchResults').length === 0) {
+                const noResultsRow = `
+                    <tr id="noSearchResults">
+                        <td colspan="4" class="text-center py-4">
+                            <i class="fas fa-search-minus text-muted mb-2" style="font-size: 2rem;"></i><br>
+                            <span class="text-muted">No results found for "${filter}"</span>
+                        </td>
+                    </tr>
+                `;
+                $('#PoputDetails tbody').append(noResultsRow);
+            }
+        } else {
+            $('#noSearchResults').remove();
+        }
+    }
+
+    function formatLabel(label) {
+        if (!label) return '';
+
+        return label
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase())
+            .trim();
+    }
+
+    function formatValue(value) {
+        if (value === null || value === undefined || value === '') {
+            return '<span class="text-muted"></span>';
+        }
+        if (typeof value === 'boolean') {
+            return value
+                ? '<span class="badge bg-success">Yes</span>'
+                : '<span class="badge bg-secondary">No</span>';
+        }
+        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+            try {
+                const date = new Date(value);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString();
+                }
+            } catch (e) {
+
+            }
+        }
+        if (typeof value === 'string' && /^https?:\/\//.test(value)) {
+            return `<a href="${value}" target="_blank" class="text-decoration-none">${value} <i class="fas fa-external-link-alt small"></i></a>`;
+        }
+        return String(value);
+    }
+
+    function showImage(assetCode) {
+        debugger
+        let fromatrassetCode = assetCode.replaceAll('/','-')
+        const imageUrl = `${RootUrl}/AssetImage/${fromatrassetCode}.jpg`;
+        console.log(imageUrl)
+        let Html = `<div class="modal fade" id="Dialog" tabindex="-1" aria-labelledby="Dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 60%;">
+                <div class="modal-content shadow-lg rounded">
+                    <div class="modal-header d-flex justify-content-between">
+                        <h3>Asset Image (${assetCode})</h3>
+                        <button type="button" id="" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times"></i>  <span class="hidden">Close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-3">
+                        <img src=${imageUrl} width="100%" height="100%" alt="No image  available for this specfic AssetCode">
+                    </div>
+                </div>
+            </div>
+        </div>`
+        $('#ImageModal').append(Html)
+        $('#Dialog').modal('show');
+    }
+</script>

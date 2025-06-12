@@ -1,0 +1,254 @@
+﻿
+@{
+    ViewData["Title"] = "MachineReport";
+    Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+
+<style>
+	.select2-container {
+		z-index: 9999 !important;
+	}
+	.select2-container .select2-selection--single {
+		height: 35px !important;
+		font-size: 15px !important;
+		padding: 0.375rem 0.75rem !important;
+		border: 1px solid #ccc !important;
+		border-radius: 0.25rem !important;
+		padding: 10px;
+	}
+	.select2-container--default .select2-selection--single .select2-selection__rendered {
+		line-height: 1.5 !important;
+	}
+	.tblDetailRowDetails_wrapper .dt-layout-row .dt-layout-table .dt-layout-cell .dt-scroll .dt-scroll-body {
+		position: relative;
+		overflow: auto;
+		max-height: 500px;
+		height: 100px !important;
+	}
+	.select2-container .select2-selection--single {
+		height: 35px !important;
+		font-size: 15px !important;
+		border: 1px solid #ccc !important;
+		border-radius: 0.25rem !important;
+		padding: 10px;
+	}
+	.custom-table {
+		border-radius: 8px;
+		overflow: hidden;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		background-color: #ffffff;
+	}
+	.custom-table tbody tr:nth-child(odd) {
+		background-color: #f2f2f2;
+	}
+	.custom-table tbody tr:nth-child(even) {
+		background-color: #ffffff;
+	}
+	.custom-table tbody tr:hover {
+		background-color: #e9ecef;
+	}
+	.custom-table th,
+	.custom-table td {
+		vertical-align: middle;
+		padding: 0.75rem;
+		border: 1px solid #dee2e6;
+	}
+	.custom-table thead {
+		background-color: #f8f9fa;
+		font-weight: 600;
+	}
+	.modal-header, .modal-body, .modal-footer {
+		border: none;
+	}
+	#BtnClose {
+		margin-left: auto;
+	}
+	#frmDareErr, #toDareErr {
+		display: none;
+	}
+	.btn i {
+		margin-right: 4px;
+	}
+</style>
+
+<div class="overflow-hidden">
+	<div class="ps-0">
+		<div class="d-flex align-items-center flex-wrap gap-2">
+			<h4 class="m-0 flex-grow-1">Machine Report</h4>
+		</div>
+		<div class="mt-2">
+			<div class="row align-items-end">
+				<div class="col-lg-6">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="d-flex flex-column gap-2 custom-dropdown">
+								<label for="ddlpremisesDropdown" class="fw-bold m-0 text-secondary d-block">Premises:</label>
+								<select id="ddlpremisesDropdown" onchange="BindLines()" class="form-control select2"></select>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="d-flex flex-column gap-2 custom-dropdown">
+								<label for="ddllineDropdown" class="fw-bold m-0 text-secondary d-block">Line:</label>
+								<select id="ddllineDropdown" class="form-control select2">
+									<option value="">--Select Line--</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-6 d-flex justify-content-end align-items-end">
+					<button id="viewButton" class="btn btn-warning btn-sm shadow-sm p-2 custom-btn me-2">
+						<i class="fa-solid fa-street-view"></i> View
+					</button>
+					<button id="settingsButton" class="btn btn-success btn-sm shadow-sm p-2 custom-btn">
+						<i class="fa-solid fa-gear"></i> Settings
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 p-3 overflow-hidden custom-filter-container">
+			<div class="table-responsive">
+				<table class="table table-bordered table-striped custom-table datatable w-100" id="machineTable">
+						<thead class="bg-light">
+							<tr id="tableHeaders" class="font_SIZE"></tr>
+						</thead>
+						<tbody id="tableBody" class="font_SIZE">
+						</tbody>
+				</table>
+			</div>
+			<div class="" id="cardContainer"> </div>
+			</div>
+		</div>
+    </div>
+</div>
+<div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="dataModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class=" d-flex justify-content-end col-sm-12">
+					<div class="col-sm-10">
+						<h5 class="modal-title" id="dataModalLabel">Row Details</h5>
+					</div>
+					<div class="col-sm-2 text-end">
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body" id="modalBodyContent" style="max-height: 400px; overflow-y: auto;"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="settingsModel" tabindex="-1" aria-labelledby="settingsModelLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header d-flex flex-row justify-content-between">
+				<h5 class="text-dark text-opacity-50 fs-3">Select Group</h5>
+			</div>
+			<div class="modal-body">
+				<form method="post">
+					<div class="mb-3">
+						<label class="form-label fw-bold text-dark text-opacity-75">Choose an option:</label>
+						<div class="d-flex flex-row gap-2">
+							<div class="form-check d-flex justify-content-center align-content-center custom-radio">
+								<input class="" checked type="radio" name="groupOptions" id="Machine_Type" value="Machine_Type">
+								<label class=" text-dark text-opacity-75 d-block" style="margin-top:3px;margin-left:6px;" for="Machine_Type">
+									Machine Type
+								</label>
+							</div>
+							<div class="form-check d-flex justify-content-center align-content-center custom-radio">
+								<input class="" type="radio" name="groupOptions" id="Make" value="Make">
+								<label class="form-check-label text-dark text-opacity-75 d-block" style="margin-top:3px;margin-left:6px;" for="Make">
+									Make
+								</label>
+							</div>
+							<div class="form-check d-flex justify-content-center align-content-center custom-radio">
+								<input class="" type="radio" name="groupOptions" id="Modal" value="Modal">
+								<label class=" text-dark text-opacity-75 d-block" style="margin-top:3px;margin-left:6px;" for="Modal">
+									Modal
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="text-end">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	
+	var ApiUrlMaster = "";
+
+	var apiBaseUrl = "@ViewBag.ApiBasurl";
+	
+	let authToken = localStorage.getItem("authToken");
+	
+	$(document).ready(function () {
+		BindMachinedetails();
+		BindPremises();
+		openSetting();
+		$("#cardFooter").html("Total records")
+	});
+
+	function BindPremises() {
+		let URL = `${apiBaseUrl}/Premises/BindPremises`
+		BindDropdown(URL,"ddlpremisesDropdown",authToken,"CompCode","N_CompCode","Premises")
+	}
+
+	function BindLines() {
+		var compcode = $('#ddlpremisesDropdown').val();
+		if (!compcode) {
+			alert('No premises selected! Please select a premises.');
+			return;
+		}
+		let URL = `${apiBaseUrl}/Line/GetLineNo?process=Sewing&Compcode=${compcode}`
+		BindDropdown(URL,"ddllineDropdown",authToken,"id","lineNo","Lines")
+	}
+
+	function openSetting() {
+		$('#settingsButton').on('click', function () {
+			$('#settingsModel').modal('show');
+		});
+	}
+
+	$('input[name="groupOptions"]').on('change', function () {
+		$('#settingsModel').modal('hide');
+	});
+
+	$('#viewButton').on('click',function(){
+		var Header = $('input[name="groupOptions"]:checked').val();
+		var CompCode = $('#ddlpremisesDropdown').val();
+		if (!Header) {
+			AlertErrorSwal("error","Please select an option in the settings modal.");
+			return;
+		}
+		if (!CompCode) {
+			AlertErrorSwal("error","Please select a premises.");
+			return;
+		}
+		BindMachinedetails(ApiUrlMaster);
+	})
+
+	function BindMachinedetails() {
+		var group = "Premises";
+		var Header = $('input[name="groupOptions"]:checked').val();
+		var CompCode = $('#ddlpremisesDropdown').val();
+		var LineNo = $('#ddllineDropdown').val();
+		if (CompCode==null) {
+			CompCode="";
+		}
+		if (LineNo==null) {
+		LineNo="";
+		}
+		let URL = `${apiBaseUrl}/MachineProd/GetProdMachineReport?Group=${group}&Header=${Header}&CompCode=${CompCode}&LineNo=${LineNo}`;
+		let tableid='machineTable';
+		initalizeDatatable(URL,tableid)
+	}
+
+</script>
+

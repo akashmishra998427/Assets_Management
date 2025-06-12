@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "bootstrap-icons": "^1.11.3",
+    "jquery": "^3.7.1",
+    "table2excel": "^1.0.4"
+  }
+}

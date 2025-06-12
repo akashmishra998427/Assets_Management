@@ -1,0 +1,403 @@
+﻿@{
+	ViewData["Title"] = "ScrapAsset";
+	Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+
+<style>
+	.gap-1 {
+		gap: 2.25rem !important;
+	}
+
+	.card-body {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.card-image {
+		width: 100%;
+		max-width: 300px;
+		height: auto;
+	}
+
+	.card-content {
+		padding-left: 15px;
+	}
+
+		@@media (max-width: 767px) {
+    .card-body{
+		flex-direction: column;
+		text-align: center;
+	}
+	.card-image {
+		max-width: 100%;
+		height: auto;
+	}
+	.card-content {
+		padding-left: 0;
+		padding-top: 15px;
+	}
+	}
+</style>
+
+<div>
+	<h3 class="text fw-bolder">Scrap Assets</h3>
+	<div class="d-flex gap-5 p-3" style="background-color: #edf2f8;" id="cardsContainer">
+		<div class="card shadow-sm border-0" style="width: 546px;height: 350px; overflow: hidden;">
+			<div class="row g-0 h-100" style="border:2px solid gray">
+				<div class="col-6 d-flex align-items-center justify-content-center bg-light rounded-start">
+					<img src="http://192.168.41.4:89/Assets/Assets/AssetImage/RC-8-C439.jpg" alt="Office workspace with computers" class="img-fluid p-2 rounded" style="height: 300px;width:300px" />
+				</div>
+				<div class="col-6 p-3 d-flex flex-column justify-content-between">
+					<div>
+						<span class="fw-bold" style="font-size: 16px; min-width: 0;">GG/01/C294 (DESKTOP)</span>
+					</div>
+					<div style="line-height: 1.3;">
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-user text-primary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">JohnDoe</span>
+						</div>
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-file-word text-info me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">MS Office 2007</span>
+						</div>
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-desktop text-warning me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">HP EliteBook 840</span>
+						</div>
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-download text-secondary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">Office Installer</span>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<i class="fab fa-windows text-primary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">Windows 11 Pro</span>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<i class="fa-solid fa-money-bill-trend-up text-primary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;"><a href="#">LAP-70</a></span>
+						</div>
+					</div>
+					<hr class="my-2" style="border-top: 1px solid #ccc;">
+					<div class="d-flex flex-column gap-2">
+						<div class="d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0 me-2">Quarter:</label>
+							<select class="form-select form-select-sm" style="width: 60%;">
+								<option selected>Q1 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>	
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>	
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>	
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+							</select>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0 me-2">Deal Size:</label>
+							<select class="form-select form-select-sm" style="width: 60%;">
+								<option selected>All Sizes</option>
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>	
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>	
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>	
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>	
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>	
+							</select>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0 me-2">Industry:</label>
+							<select class="form-select form-select-sm" style="width: 60%;">
+								<option selected>All Industries</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="card shadow-sm border-0" style="width: 546px;height: 350px; overflow: hidden;">
+			<div class="row g-0 h-100" style="border:2px solid gray">
+				<div class="col-6 d-flex align-items-center justify-content-center bg-light rounded-start">
+					<div class="col-6 d-flex align-items-center justify-content-center bg-light rounded-start">
+						<div class="w-100 px-3 text-center">
+							<input type="file" id="UploadImage" class="d-none" />
+							<div type="button" class="btn btn-success w-100 d-flex gap-2 p2" style="width:100px !important" onclick="document.getElementById('UploadImage').click();">
+								<i class="fas fa-upload"></i>
+								<span>Upload</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-6 p-3 d-flex flex-column justify-content-between">
+					<div>
+						<span class="fw-bold" style="font-size: 16px; min-width: 0;">GG/01/C294 (DESKTOP)</span>
+					</div>
+					<div style="line-height: 1.3;">
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-user text-primary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">JohnDoe</span>
+						</div>
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-file-word text-info me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">MS Office 2007</span>
+						</div>
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-desktop text-warning me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">HP EliteBook 840</span>
+						</div>
+						<div class="d-flex align-items-center mb-1 justify-content-between">
+							<i class="fas fa-download text-secondary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">Office Installer</span>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<i class="fab fa-windows text-primary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;">Windows 11 Pro</span>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<i class="fa-solid fa-money-bill-trend-up text-primary me-2" style="width: 20px;"></i>
+							<span style="font-size: 14px;"><a href="#">LAP-70</a></span>
+						</div>
+					</div>
+					<hr class="my-2" style="border-top: 1px solid #ccc;">
+					<div class="d-flex flex-column gap-2">
+						<div class="d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0 me-2">Quarter:</label>
+							<select class="form-select form-select-sm" style="width: 60%;">
+								<option selected>Q1 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+								<option>Q2 2021</option>
+								<option>Q3 2021</option>
+								<option>Q4 2021</option>
+							</select>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0 me-2">Deal Size:</label>
+							<select class="form-select form-select-sm" style="width: 60%;">
+								<option selected>All Sizes</option>
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+								<option>$1B+</option>
+								<option>$100M-$1B</option>
+								<option>Under $100M</option>
+							</select>
+						</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0 me-2">Industry:</label>
+							<select class="form-select form-select-sm" style="width: 60%;">
+								<option selected>All Industries</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+								<option>Software</option>
+								<option>Hardware</option>
+								<option>Services</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@*  </div> *@
+<script>
+	$(document).ready(function()
+	{
+	})
+	
+	$('#UploadImage').change(function(event) {
+		var file = event.target.files[0];
+		if (!file) {
+			alert('No file selected.');
+			return;
+		}
+		var formData = new FormData();
+		formData.append('image', file);
+		$.ajax({
+			url: '/Assets/UploadScrapImage',
+			type: 'POST',
+			data: formData,
+			processData: false, 
+			contentType: false, 
+			success: function(response) {
+				let data;
+				try {
+					data = typeof response === 'string' ? JSON.parse(response) : response;
+					showToast(data.message,"success")
+				} catch (e) {
+					console.error('Failed to parse response JSON:', e);
+					showToast("Unexpected response from server", "error");
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error('Upload Error:', error);
+				showToast("Failed to upload image", "error");
+			}
+		});
+	});
+	
+	function fetchAndAppendCards(apiUrl) {
+		$.ajax({
+			url: apiUrl,
+			type: 'GET',
+			success: function (response) {
+				response.forEach(function (asset, index) {
+					// Determine if asset has an image URL
+					let imageHtml = '';
+					if (asset.imageUrl) {
+						imageHtml = `<img src="${asset.imageUrl}" alt="${asset.name}" class="img-fluid p-2 rounded card-image" />`;
+					} else {
+						imageHtml = `
+							<div class="w-100 px-3 text-center">
+								<input type="file" id="UploadImage${asset.id}" class="d-none" />
+								<div type="button" class="btn btn-success w-100 d-flex gap-2 p2" style="width:100px !important" onclick="document.getElementById('UploadImage${asset.id}').click();">
+									<i class="fas fa-upload"></i>
+									<span>Upload</span>
+								</div>
+							</div>
+						`;
+					}
+
+					// Construct the card HTML
+					let cardHtml = `
+						<div class="col-12 col-sm-6 col-md-4 mb-3">
+							<div class="card shadow-sm border-0" style="height: 350px; overflow: hidden;">
+								<div class="row g-0 h-100" style="border:2px solid gray">
+									<div class="col-12 d-flex align-items-center justify-content-center bg-light rounded-start card-body">
+										${imageHtml}
+									</div>
+									<div class="col-12 p-3 d-flex flex-column justify-content-between card-content">
+										<div>
+											<span class="fw-bold" style="font-size: 16px; min-width: 0;">${asset.code} (${asset.type})</span>
+										</div>
+										<div style="line-height: 1.3;">
+											<div class="d-flex align-items-center mb-1 justify-content-between">
+												<i class="fas fa-user text-primary me-2" style="width: 20px;"></i>
+												<span style="font-size: 14px;">${asset.owner}</span>
+											</div>
+											<div class="d-flex align-items-center mb-1 justify-content-between">
+												<i class="fas fa-file-word text-info me-2" style="width: 20px;"></i>
+												<span style="font-size: 14px;">${asset.software}</span>
+											</div>
+											<div class="d-flex align-items-center mb-1 justify-content-between">
+												<i class="fas fa-desktop text-warning me-2" style="width: 20px;"></i>
+												<span style="font-size: 14px;">${asset.device}</span>
+											</div>
+											<div class="d-flex align-items-center mb-1 justify-content-between">
+												<i class="fas fa-download text-secondary me-2" style="width: 20px;"></i>
+												<span style="font-size: 14px;">${asset.installer}</span>
+											</div>
+											<div class="d-flex align-items-center justify-content-between">
+												<i class="fab fa-windows text-primary me-2" style="width: 20px;"></i>
+												<span style="font-size: 14px;">${asset.os}</span>
+											</div>
+											<div class="d-flex align-items-center justify-content-between">
+												<i class="fa-solid fa-money-bill-trend-up text-primary me-2" style="width: 20px;"></i>
+												<span style="font-size: 14px;"><a href="#">${asset.lap}</a></span>
+											</div>
+										</div>
+										<hr class="my-2" style="border-top: 1px solid #ccc;">
+										<div class="d-flex flex-column gap-2">
+											<div class="d-flex align-items-center justify-content-between">
+												<label class="form-label mb-0 me-2">Quarter:</label>
+												<select class="form-select form-select-sm" style="width: 60%;">
+													<option selected>${asset.quarter}</option>
+												</select>
+											</div>
+											<div class="d-flex align-items-center justify-content-between">
+												<label class="form-label mb-0 me-2">Deal Size:</label>
+												<select class="form-select form-select-sm" style="width: 60%;">
+													<option selected>${asset.dealSize}</option>
+												</select>
+											</div>
+											<div class="d-flex align-items-center justify-content-between">
+												<label class="form-label mb-0 me-2">Industry:</label>
+												<select class="form-select form-select-sm" style="width: 60%;">
+													<option selected>${asset.industry}</option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					`;
+
+					// Append the card to the container
+					$('#cardsContainer').append(cardHtml);
+				});
+			},
+			error: function (xhr, status, error) {
+				console.error('Error fetching data:', error);
+			}
+		});
+	}
+</script>
+
+			

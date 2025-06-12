@@ -1,0 +1,63 @@
+﻿.page-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-upload {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-upload:hover {
+    background-color: #0b5ed7;
+    color: white;
+}
+
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.form-label sub {
+    font-size: 0.75rem;
+}
+
+#fileInput {
+    display: none;
+}
+
+.custom-upload {
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+}
+
+.col-md-10 {
+    width: 85.333333%;
+}
+
+.col-2 {
+    width: 14.666667%;
+}
+
+.custom-upload:hover {
+    background-color: #e2e6ea;
+}
+
+@@media screen and (max-width: 850px) {
+   .btn-primary > span {
+       display: none;
+   }
+}

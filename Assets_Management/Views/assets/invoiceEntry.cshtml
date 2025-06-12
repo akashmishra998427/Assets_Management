@@ -1,0 +1,217 @@
+﻿@{
+    ViewData["Title"] = "invoiceEntry";
+    Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+<style>
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    .form-card {
+        width: 100%;
+        max-width: 1200px;
+        padding: 30px;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn-custom {
+        background-color: #0097d7;
+        font-weight: 600;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+    .btn-custom:hover {
+        background-color: #1474A4;
+        color: #fff;
+    }
+    .fontText {
+        color: #0097d7;
+    }
+    .form-control {
+        border-radius: 6px;
+    }
+    .position-fixed {
+        top: 1rem;
+        right: 1rem;
+        left: auto;
+        bottom: auto;
+    }
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+    .input-group .form-control {
+        flex: 1;
+    }
+</style>
+<div class="container-fluid container mt-5" >
+    <div class="card form-card">
+        <div class="card-body">
+            <h1 class="text-center fw-bold fontText">Invoice Entry</h1>
+            <form>
+                <div class="row g-3 mt-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fontText">Invoice No:</label>
+                        <input type="text" class="form-control form-control-lg" id="invNo" placeholder="Enter Invoice No" />
+                        <lable class="text-danger" id="invoiceNoErr">Please Enter Invoice No</lable>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fontText">Invoice Date:</label>
+                        <input type="date" class="form-control form-control-lg" id="invDate" />
+                        <lable class="text-danger" id="invoiceDateErr">Plese Select Invoice Date</lable>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fontText">Type:</label>
+                        <select class="form-control form-control-lg" id="ddlInvoiceType">
+                            <option value="">Please Select Type</option>
+                            <option value="C">Computer</option>
+                            <option value="L">Laptop</option>
+                            <option value="M">Monitor</option>
+                            <option value="D">Desktop</option>
+                            <option value="K">Keyboard</option>
+                            <option value="M">Mouse</option>
+                            <option value="W">Wire</option>
+                            <option value="E">Etc</option>
+                        </select>
+                        <lable class="text-danger" id="invoiceTypeErr">Plese Select Invice Type</lable>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fontText">Upload Invoice:</label>
+                        <input type="file" class="form-control form-control-lg" id="uploadInvoice" />
+                        <lable class="text-danger" id="uploadInvoiceErr">Please Upload Invice</lable>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2 d-flex">
+                    <div class="col-md-3 input-group">
+                        <button type="button" id="btnAttachInvoice" class="btn btn-outline-info rounded text-dark" data-bs-toggle="modal" data-bs-target="#invoiceModal" onclick="BindModelNo()">
+                            <i class="fa fa-paperclip"></i> Attach Asset
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fontText">Selected Asset</label>
+                        <textarea class="form-control form-control-lg" id="selectedAssetInput" readonly style="width: 1050px" placeholder="No Asset Selected Now"></textarea>
+                        <span id="formattedInvDate" class="d-none"></span>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="btn btn-outline-danger rounded" style="margin-bottom: 21px; margin-left:194%" onclick="removeSelectedAsset()">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <input type="button" class="btn btn-custom btn-lg" id="SubmitComplaint" onclick="invSubmit()" value="Submit" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content shadow-lg rounded">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="invoiceModal">Assets</h5>
+                <button type="button" class="btn btn-outline-danger rounded" data-bs-dismiss="modal" aria-label="Close" style="margin-left: 68%;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="overflow-auto" id="ddlAssetsList" style="max-height: 400px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnSave" data-bs-dismiss="modal" aria-label="Close">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const ddlAssetsList = $("#ddlAssetsList");
+   
+    for (let i = 1; i <= 20; i++) {
+        const checkboxWrapper = $('<div class="form-check"></div>');
+        const checkbox = $('<input>', {
+            type: "checkbox",
+            class: "form-check-input chkAsset",
+            id: `checkbox${i}`,
+            value: `Asset ${i}`
+        });
+        const label = $('<label>', {
+            class: "form-check-label",
+            for: `checkbox${i}`,
+            text: `Asset ${i}`
+        });
+        checkboxWrapper.append(checkbox).append(label);
+        ddlAssetsList.append(checkboxWrapper);
+    }
+  
+    $('#btnSave').on('click', function() {
+        const selectedAssets = [];
+        $('input[type="checkbox"]:checked').each(function() {
+            selectedAssets.push($(this).val());
+        });
+        $('#selectedAssetInput').val(selectedAssets.join(', ')); 
+    });
+   
+    function removeSelectedAsset() {
+        $('#selectedAssetInput').val("");
+        $('.chkAsset').prop("checked", false);
+    }
+
+    $(document).ready(function() {
+         $('#invoiceNoErr').hide()
+         $('#invoiceDateErr').hide()
+         $('#invoiceTypeErr').hide()
+         $('#uploadInvoiceErr').hide()
+        $('#invDate').on('change', function() {
+            let date = new Date(this.value);
+            let options = { year: 'numeric', month: 'short', day: '2-digit' };
+            let formattedDate = date.toLocaleDateString('en-GB', options);
+            $('#formattedInvDate').text(formattedDate); 
+        });
+    });
+
+    function invSubmit() {
+        let incoiceNo =$('#invNo').val()   
+        let incoicedate =$('#invDate').val()
+        let incoicetype =$('#ddlInvoiceType').val()
+        let incoiceimage =$('#uploadInvoice').val()
+        if(incoiceNo=="")
+        {
+            $('#invoiceNoErr').show()
+            setTimeout(()=>{
+                 $('#invoiceNoErr').hide()
+            },1000)
+        } 
+        else if(incoicedate=="")
+        {
+            $('#invoiceDateErr').show()
+            setTimeout(()=>{
+                 $('#invoiceDateErr').hide()
+            },1000)
+        } 
+        else if(incoicetype=="")
+        {
+            $('#invoiceTypeErr').show()
+            setTimeout(()=>{
+                 $('#invoiceTypeErr').hide()
+            },1000)
+        } 
+        else if(incoiceimage=="")
+        {
+            $('#uploadInvoiceErr').show()
+            setTimeout(()=>{
+                 $('#uploadInvoiceErr').hide()
+            },1000)
+        }
+    }
+</script>

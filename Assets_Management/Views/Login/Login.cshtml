@@ -1,0 +1,125 @@
+﻿@{
+	ViewData["Title"] = "Login";
+	Layout = null;
+}
+<head>
+	<title>Login</title>
+	<link rel="shortcut icon" href="~/Images/rc.png" type="image/x-icon">
+	<!-- customjavascript -->
+	<script src="~/customjavascript/commoncontrol.js"></script>
+	<!-- sweetalert -->
+	<script src="~/assets/sweetalert/sweetalertjs/sweetalert.js"></script>
+	<!-- bootstrap -->
+	<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+	<!-- jQuery -->
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+<style>
+	body {
+		background-color: rgb(0 151 215 / 0.63);
+	}
+
+	.login-container {
+		max-width: 400px;
+		margin: 100px auto;
+		margin-top: 20%;
+		padding: 30px;
+		border-radius: 8px;
+		box-shadow: 0 5px 9px rgba(0, 0, 0, 1);
+	}
+
+	.btn-custom {
+		background-color: #0097d7;
+		color: white;
+		font-weight: 500;
+	}
+
+	.btn-custom:hover {
+		background-color: #0A4057;
+		color: white;
+		font-weight: 500;
+	}
+</style>
+<div class="container">
+	<div class="login-container bg-white " id="login">
+		<div class="pb-3 text-center">
+			<h2 class="text-primary ">Login</h2>
+		</div>
+		<form action="#" method="POST">
+			<div class="pb-3">
+				<label for="empCode" class="form-label text-dark"><b>Employee Code</b></label>
+				<input type="text" id="empCode" class="form-control" placeholder="Enter your employee code" required>
+			</div>
+			<div class="pb-3">
+				<label for="Password" class="form-label text-dark"><b>Password</b></label>
+				<input type="password" id="Password" class="form-control" placeholder="Enter your password" required>
+			</div>
+			<div id="errorMessage" class="text-danger text-center mb-2" style="display: none;"></div>
+			<div class="form-group">
+				<input type="button" class="btn btn-custom w-100" id="LoginBtn" value="Login" onclick="Login()" />
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+	const baseURL = window.location.origin;
+	
+	var apiBasurl = "@ViewBag.ApiBasurl";
+	
+	function Login() {
+		var userCode = $("#empCode").val().trim();
+		var password = $("#Password").val().trim();
+		$('#lable').html(baseURL)
+		if (userCode === "" || password === "") {
+			$("#errorMessage").text("Employee Code  And Password Are Required").show();
+			return;
+		}
+		var apiUrl = `${apiBasurl}/Login/GetLogin?code=${userCode}&pwd=${encodeURIComponent(password)}`;
+		console.log(apiUrl)
+		if (baseURL !="http://180.151.12.214:97") {
+			console.log('working')
+			$.ajax({
+				url: apiUrl,
+				type: "POST",
+				contentType: "application/json",
+				dataType: "JSON",
+				success: function (res) {
+					let data = res;
+					if (res.token) {
+						console.log(res.token)
+						localStorage.setItem("authToken", res.token);
+						sessionStorage.setItem("UserName", res.userName);
+						sessionStorage.setItem("UserRole", res.userRole);
+						console.log(res.userRole);
+						if(res.userRole!=="ADMIN")
+						{
+							window.location.href = "/assets/genrateAssetQR";
+						}
+						else{
+							window.location.href = "/Dashboard/Dashboard";
+						}
+					showToast("Login successfully!", "success");
+					} else {
+						$("#errorMessage").text("Invalid employee code or password").show();
+					}
+				},
+				error: function (xhr, status, error) {
+					showToast("Login failed!", "error");
+					$('#errorMessage').html("Either Employee Code Or password incorrect, please check and try again");
+					if ($('#errorMessage').length > 0) {
+						$('#errorMessage').css("display", "block");
+						setTimeout(() => {
+							$('#errorMessage').css("display", "none");
+						}, 1000);
+					} else {
+						console.warn('Error message element #errorMessage not found!');
+					}
+				}
+			});
+		} else {
+			$('#LoginBtn').attr("disabled", true);
+			showToast("Network connection error. You can't login","Error")
+		}
+	}
+</script>
+

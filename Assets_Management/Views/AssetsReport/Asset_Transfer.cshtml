@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewData["Title"] = "Asset_Transfer";
+    Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+<link rel="stylesheet" href="~/jquery/jQueryUi.css">
+<script src="~/jquery/jQueryUi.js"></script>
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="overflow-hidden px-3 py-2">
+	<div class="text-black p-3 mb-3">
+		<div class="row align-items-center d-flex justify-content-between">
+			<div class="col-sm-3">
+				<h4 class="m-0">Stock Transfer Report</h4>
+			</div>
+			<div class="col-sm-9 d-flex gap-2">
+				<div id="btnDetail" class="btn btn-info rounded text-dark fw-bold" onclick="BindAssetDetails()">
+					<i class="fas fa-info-circle me-1"></i>Detail
+				</div>
+				<div id="BtnFilter" class="btn btn-success rounded text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#filterModal">
+					<i class="fas fa-filter me-1"></i>Filter
+				</div>
+				<div id="BtnExport" class="btn btn-primary rounded text-dark fw-bold" onclick="exportExcel()">
+					<i class="fa-solid fa-file-export me-1"></i>Export
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div id="DV_SoftData" class="overflow-auto"style="height:100% !important">
+			<table class="table table-bordered table-striped custom-table datatable w-100" id="tblAsset">
+				<thead class="table-light">
+					<tr id="tableHeaders" class="font_SIZE"></tr>
+				</thead>
+				<tbody id="tableBody" class="font_SIZE"></tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="filterModal"  aria-labelledby="modalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+		<div class="modal-dialog modal-lg mt-5">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title fw-bold" id="modalLabel">Filter</h5>
+					<button type="button" id="BtnClose" class="btn btn-danger rounded" data-bs-dismiss="modal" aria-label="Close">
+						<i class="fas fa-times"></i> Close
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="row p-3">
+						<div class="col-md-6">
+							<label for="frmDate" class="fw-bold">From Date:</label>
+							<input type="date" id="frmDate" class="form-control" />
+							<label id="frmDareErr" class="fw-bold text-danger d-none">Please select date</label>
+						</div>
+						<div class="col-md-6">
+							<label for="toDate" class="fw-bold">To Date:</label>
+							<input type="date" id="toDate" class="form-control" />
+							<label id="toDareErr" class="fw-bold text-danger d-none">Please select date</label>
+						</div>
+					</div>
+					<div class="row p-3">
+						<div class="col-md-6 d-flex align-items-center gap-2">
+							<label class="fw-bold m-0">Transfer In Stock:</label>
+							<input type="radio" id="chkINStock" class="form-check" name="chkStock" value="TransferInStock" />
+						</div>
+						<div class="col-md-6 d-flex align-items-center gap-2">
+							<label class="fw-bold m-0">Transfer From Stock:</label>
+							<input type="radio" id="chkFromStock" class="form-check" name="chkStock" value="TransferFromStock" />
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div id="btnExecute" class="btn btn-success rounded text-light fw-bold">
+						<i class="fas fa-filter me-1"></i>Filter
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	let AuthToken = localStorage.getItem("authToken");
+	let ApiUrl = "@ViewBag.ApiBasurl";
+	let GROUPBy = "DEPT,";
+	let groups = "TransferInStock"
+	
+	$(document).ready(function() {
+		$('#frmDareErr').hide();
+		$('#toDareErr').hide();
+		BindAssetDetails();
+		$('#BtnClose').on('click', function() {
+			$('#filterModal').modal('hide');
+			$('.modal-backdrop').remove();
+			$('body').removeClass('modal-open');
+		});
+		
+		$('#btnExecute').on('click', function() {
+			let FromDate = $('#frmDate').val();
+			let ToDate = $('#toDate').val();
+			let URL = `${ApiUrl}/Asset/BindStockTransferReport?FromDate=${FromDate}&ToDate=${ToDate}&GROUPBy=${groups}`;
+			let tableid = 'tblAsset';
+			DatatablePopulation(URL, tableid, AuthToken);
+			$('#filterModal').modal('hide');
+			$('.modal-backdrop').remove();
+			$('body').removeClass('modal-open');
+		});
+		
+		$(document).on('keydown', function(e) {
+			if (e.key === "Escape" && $('#filterModal').is(':visible')) {
+				$('#filterModal').modal('hide');
+				$('.modal-backdrop').remove();
+				$('body').removeClass('modal-open');
+			}
+		});
+	
+		$(document).on('click', '.modal-backdrop', function() {
+			$('#filterModal').modal('hide');
+			$('.modal-backdrop').remove();
+			$('body').removeClass('modal-open');
+		});
+	});
+	
+	function exportExcel() {
+		var Table = "tblAsset";
+		var FileName = "Asset Transfer";
+		exportToExcel(Table, FileName);
+		showToast("Data Exported Successfully", "success");
+	}
+	
+	function BindAssetDetails() {
+		let FromDate = $('#frmDate').val();
+		let ToDate = $('#toDate').val();
+		if (!FromDate) {
+			let date = new Date();
+			date.setMonth(date.getMonth() - 1);
+			FromDate = date.toISOString().split('T')[0];
+		}
+		if (!ToDate) {
+			ToDate = new Date().toISOString().split('T')[0];
+		}
+		let URL = `${ApiUrl}/Asset/BindStockTransferReport?FromDate=${FromDate}&ToDate=${ToDate}&GROUPBy=${GROUPBy}`;
+		let tableid = 'tblAsset';
+		DatatablePopulation(URL, tableid, AuthToken);
+	}
+	
+	$('#filterModal').on('hidden.bs.modal', function () {
+		$('.modal-backdrop').remove();
+		$('body').removeClass('modal-open');
+	});
+</script>

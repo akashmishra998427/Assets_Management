@@ -1,0 +1,836 @@
+﻿@{
+	ViewData["Title"] = "Assign Engineer";
+	Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+
+<style>
+	.text {
+		color: #1474A4;
+	}
+
+	.swal-on-top {
+		z-index: 9999 !important;
+	}
+
+	.swal2-container {
+		z-index: 9999 !important;
+	}
+
+	.select2-container .select2-selection--single {
+		height: 35px !important;
+		font-size: 15px !important;
+		padding: 0.375rem 0.75rem !important;
+		border: 1px solid #ccc !important;
+		border-radius: 0.25rem !important;
+		padding: 10px;
+	}
+
+	#machineTableComp_info {
+		display: none;
+	}
+
+	.modal-backdrop {
+		background-color: rgba(0, 0, 0, 0.5) !important;
+	}
+
+	#saveEngineer {
+		background-color: #1474A4;
+		color: white;
+		font-weight: 500;
+	}
+
+		#saveEngineer:hover {
+			background-color: #0097d7;
+		}
+
+	.dt-column-title {
+		color: #1474A4;
+	}
+
+	.dt-scroll-body {
+		overflow-x: hidden !important;
+	}
+
+	.date-engineer-container {
+		max-height: 450px;
+		overflow-y: auto;
+		border: 1px solid #dee2e6;
+		border-radius: 0.25rem;
+	}
+
+	.date-engineer-row {
+		display: flex;
+		align-items: center;
+		padding: 3px;
+		border-top: 0.5px solid rgb(148, 146, 146);
+	}
+
+	#Header {
+		border-top: 0.5px solid rgb(148, 146, 146);
+	}
+
+	.date-engineer-row:hover {
+		background-color: #f8f9fa;
+	}
+
+	.date-label {
+		width: 300px;
+		font-weight: 500;
+	}
+
+	.engineer-select-container {
+		flex-grow: 1;
+	}
+
+	.select2-container--open {
+		z-index: 9999 !important;
+	}
+
+	.select2-dropdown {
+		z-index: 9999 !important;
+	}
+
+	.select2-container {
+		width: 100% !important;
+	}
+
+	/* Responsive Styles */
+	.main-container {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 15px;
+	}
+
+	.card {
+		width: 100% !important;
+		max-width: none !important;
+	}
+
+	/* Desktop Table - Default */
+	.desktop-table {
+		display: block;
+	}
+
+	.mobile-cards {
+		display: none;
+	}
+
+	/* Mobile/Tablet Cards */
+	.premises-card {
+		border: 1px solid #dee2e6;
+		border-radius: 0.375rem;
+		margin-bottom: 1rem;
+		padding: 1rem;
+		background: white;
+		box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+	}
+
+		.premises-card h6 {
+			color: #1474A4;
+			font-weight: 600;
+			margin-bottom: 0.75rem;
+			font-size: 1.1rem;
+		}
+
+	.form-group {
+		margin-bottom: 1rem;
+	}
+
+		.form-group label {
+			font-weight: 500;
+			color: #495057;
+			margin-bottom: 0.25rem;
+			display: block;
+			font-size: 0.9rem;
+		}
+
+	.assign-temp-btn {
+		width: 100%;
+		padding: 0.5rem;
+		background-color: #1474A4;
+		color: white;
+		border: none;
+		border-radius: 0.25rem;
+		font-weight: 500;
+		text-decoration: none;
+		display: inline-block;
+		text-align: center;
+		transition: background-color 0.2s;
+	}
+
+	.assign-temp-btn:hover {
+		background-color: #0097d7;
+		color: white;
+		text-decoration: none;
+	}
+
+	/* Tablet and Mobile Responsive */
+	@@media (max-width: 992px) {
+		.main-container
+
+	{
+		padding: 0 10px;
+	}
+
+	.desktop-table {
+		display: none;
+	}
+
+	.mobile-cards {
+		display: block;
+	}
+
+	.card {
+		margin-top: 1rem !important;
+	}
+
+	.card-body {
+		padding: 1rem;
+	}
+
+	.container-fluid {
+		padding: 0;
+	}
+
+	h4 {
+		font-size: 1.25rem;
+	}
+
+	.btn-container {
+		text-align: center;
+		margin: 1rem 0;
+	}
+
+	#UpdateAllocatedEng {
+		width: 100%;
+		max-width: 200px;
+	}
+
+	}
+
+	@@media (max-width: 768px) {
+		.main-container
+
+	{
+		padding: 0 5px;
+	}
+
+	.card-body {
+		padding: 0.75rem;
+	}
+
+	h4 {
+		font-size: 1.1rem;
+		margin: 0.5rem 0;
+	}
+
+	.premises-card {
+		padding: 0.75rem;
+	}
+
+		.premises-card h6 {
+			font-size: 1rem;
+		}
+
+	.select2-container .select2-selection--single {
+		height: 40px !important;
+		font-size: 14px !important;
+	}
+
+	.modal-dialog {
+		margin: 0.5rem;
+	}
+
+	.date-engineer-container {
+		max-height: 350px;
+	}
+
+	.date-label {
+		width: 100%;
+		font-size: 0.9rem;
+	}
+
+	.assign-temp-btn {
+		padding: 0.75rem;
+		font-size: 0.9rem;
+	}
+
+	}
+
+	@@media (max-width: 576px) {
+		.card
+
+	{
+		margin: 0.5rem 0 !important;
+	}
+
+	.card-body {
+		padding: 0.5rem;
+	}
+
+	.premises-card {
+		padding: 0.5rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.form-group {
+		margin-bottom: 0.75rem;
+	}
+
+	.modal-dialog {
+		margin: 0.25rem;
+	}
+
+	.date-engineer-container {
+		max-height: 300px;
+	}
+
+	h4 {
+		font-size: 1rem;
+		text-align: center;
+	}
+
+	}
+
+	/* DataTable responsive adjustments */
+	@@media (max-width: 992px) {
+		.dataTables_wrapper
+
+	{
+		overflow-x: auto;
+	}
+
+	}
+</style>
+
+<div class="container-fluid d-flex justify-content-center mt-5">
+	<div class="main-container">
+		<div class="card shadow-lg">
+			<div class="mt-1" style="margin-left:2%">
+				<h4 class="m-0 flex-grow-1 fw-bolder text">Assign Engineer</h4>
+			</div>
+			<div class="card-body">
+				<!-- Desktop Table View -->
+				<div class="desktop-table">
+					<div class="table-responsive mt-4">
+						<table class="table table-bordered table-hover datatable" id="machineTableComp">
+							<thead class="bg-light">
+								<tr>
+									<th class="text-center text fw-bold">Premises</th>
+									<th class="text-center text">Allocate Engineer</th>
+									<th class="text-center text">Temporary Engineer</th>
+								</tr>
+							</thead>
+							<tbody id="tableBody"></tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Mobile/Tablet Card View -->
+				<div class="mobile-cards mt-4">
+					<div id="mobileCardsContainer"></div>
+				</div>
+			</div>
+
+			<div class="btn-container mb-2" style="margin-left:90%">
+				<input type="button" value="Save" id="UpdateAllocatedEng" class="btn btn-success" />
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal remains the same -->
+	<div class="modal fade overflow-hidden" id="assignEngineerModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-md">
+			<div class="modal-content">
+				<div class="modal-header d-flex justify-content-between">
+					<h5 class="modal-title text fw-bold" id="CompCOde"></h5>
+					<div id="BtnClose" class="btn btn-outline-danger rounded" data-bs-dismiss="modal" aria-label="Close">
+						<i class="fas fa-times fw-bold"></i>
+					</div>
+				</div>
+				<div class="modal-body">
+					<div class="row mb-3">
+						<div class="col-sm-6 fw-bold text">
+							<label class="form-label">From Date</label>
+							<input id="txtFrmDate" type="date" class="form-control" />
+						</div>
+						<div class="col-sm-6 fw-bold text">
+							<label class="form-label">To Date</label>
+							<input id="txtToDate" type="date" class="form-control" />
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="date-engineer-container overflow-x-hidden" id="dateEngineerList">
+						</div>
+					</div>
+					<input type="hidden" id="selectedPremises" />
+					<input type="hidden" id="selectedEngineer" />
+					<input type="hidden" id="selectedPremisesCode" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn d-flex gap-2 justify-content-center align-content-center" id="saveEngineer">
+						<i class="fas fa-save"></i>Save
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	var apiBaseUrl = "@ViewBag.ApiBasurl";
+	let authToken = localStorage.getItem("authToken");
+	let engineersData = [];
+	let Compcode="";
+	let TempEngASSign = [];
+	let pendingAllocations = [];
+	let assignedData = [];
+	let dateEngineerAssignments = [];
+	let loggedInUser =  sessionStorage.getItem("UserName");
+	let formattedName =''
+	if (loggedInUser) {
+		let nameParts =loggedInUser.split(" ");
+		let firstName = nameParts[0];
+		let lastName = nameParts.length > 1 ? nameParts[1] : '';
+		formattedName = `${firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()} ${lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()}`;
+	}else {
+		 formattedName ="GUEST"
+	}
+
+	$(document).ready(function () {
+		fetchEngineers();
+		$('#Err_Dates').hide();
+		$('#dateEngineerList').hide();
+
+		$('#machineTableComp').DataTable({
+			paging: false,
+			searching: true,
+			ordering: false,
+			scrollCollapse: false,
+			scrollY: "500px",
+			scrollX: false,
+			info: true,
+			autoWidth: true,
+			fixedHeader: true,
+			responsive: true
+		});
+		$('#assignEngineerModal').on('hidden.bs.modal', function() {
+			$('#assignEngineerModal .engineer-select').select2('destroy');
+			$('#selectAllEngineers').select2('destroy');
+		});
+	});
+
+	function fetchEngineers() {
+		debugger
+		$.ajax({
+			url: `${apiBaseUrl}/CallLogin/GetEngnInfoData`,
+			method: "GET",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			success: function (engineers) {
+				engineersData = engineers;
+				fetchPremises();
+			},
+			error: function(xhr, status, error) {
+				console.error("Error fetching engineers:", error);
+				console.error("Response:", xhr.responseText);
+			}
+		});
+	}
+
+	function fetchPremises() {
+		$.ajax({
+			url: `/CallLog/GetPremises`,
+			method: "GET",
+			dataType: "json",
+			success: function (premisesList) {
+				populateDesktopTable(premisesList);
+				populateMobileCards(premisesList);
+			},
+			error: function (xhr) {
+				console.error("Error fetching premises:", xhr.responseText);
+				showToast("Failed to load premises.", "danger");
+			}
+		});
+	}
+
+	function populateDesktopTable(premisesList) {
+		let tableBody = $("#tableBody");
+		tableBody.empty();
+		if (premisesList.length === 0) {
+			tableBody.html('<tr><td colspan="3" class="text-center">No data available</td></tr>');
+			return;
+		}
+		premisesList.forEach(premises => {
+			let selectedEngineerId = premises.engName || null;
+			let engineerOptions = engineersData.map(engineer => {
+				let isSelected = (engineer.Engname?.trim() === selectedEngineerId?.trim()) ? 'selected' : '';
+				return `<option value="${engineer.Engname}" ${isSelected}>${engineer.Engname}</option>`;
+			}).join("");
+
+			let row = `
+				<tr>
+					 <td>
+						<a href="javascript:void(0)" class="text-dark " style="text-decoration:none" data-nCompCode="${premises.premises}">${premises.n_CompCode}</a>
+					 </td>
+
+					 <td>
+						<select class="form-select engineer-select EngAllocated" data-premises="${premises.premises}">
+						<option value="">Select Engineer</option>
+							${engineerOptions}
+						</select>
+					</td>
+
+					<td style="text-align:center;">
+							<a href="#" class="text-decoration-none text-primary assign-temp"
+							   data-premises="${premises.premises}"
+							   data-premises-code="${premises.n_CompCode}"
+							   data-engineer-id="${selectedEngineerId}">
+							   <i class="fas fa-user-check me-1"></i> Assign
+							</a>
+					</td>
+
+				</tr>
+			`;
+			tableBody.append(row);
+		});
+
+		$('.EngAllocated').select2();
+		$('#machineTableComp').DataTable().clear().rows.add(tableBody.find('tr')).draw();
+		attachDesktopEventHandlers();
+	}
+
+	function populateMobileCards(premisesList) {
+		let mobileContainer = $("#mobileCardsContainer");
+		mobileContainer.empty();
+
+		if (premisesList.length === 0) {
+			mobileContainer.html('<div class="text-center text-muted">No data available</div>');
+			return;
+		}
+
+		premisesList.forEach(premises => {
+			let selectedEngineerId = premises.engName || null;
+			let engineerOptions = engineersData.map(engineer => {
+				let isSelected = (engineer.Engname?.trim() === selectedEngineerId?.trim()) ? 'selected' : '';
+				return `<option value="${engineer.Engname}" ${isSelected}>${engineer.Engname}</option>`;
+			}).join("");
+
+			let card = `
+				<div class="premises-card">
+					<h6>${premises.n_CompCode}</h6>
+
+					<div class="form-group">
+						<label>Allocate Engineer</label>
+						<select class="form-select engineer-select EngAllocated" data-premises="${premises.premises}">
+							<option value="">Select Engineer</option>
+							${engineerOptions}
+						</select>
+					</div>
+
+					<div class="form-group">
+						<a href="#" class="assign-temp-btn assign-temp"
+						   data-premises="${premises.premises}"
+						   data-premises-code="${premises.n_CompCode}"
+						   data-engineer-id="${selectedEngineerId}">
+						   <i class="fas fa-user-check me-1"></i> Assign Temporary Engineer
+						</a>
+					</div>
+				</div>
+			`;
+			mobileContainer.append(card);
+		});
+
+		// Initialize Select2 for mobile cards
+		$('#mobileCardsContainer .EngAllocated').select2({
+			width: '100%'
+		});
+
+		attachMobileEventHandlers();
+	}
+
+	function attachDesktopEventHandlers() {
+		$("#tableBody .assign-temp").off('click').on('click', function(e) {
+			e.preventDefault();
+			handleAssignTemp($(this));
+		});
+	}
+
+	function attachMobileEventHandlers() {
+		$("#mobileCardsContainer .assign-temp").off('click').on('click', function(e) {
+			e.preventDefault();
+			handleAssignTemp($(this));
+		});
+	}
+
+	function handleAssignTemp(element) {
+		let premises = element.data("premises");
+		Compcode = element.data("premises-code");
+		$('#CompCOde').text(`Assign Temporary Engineers (${Compcode})`)
+		let engineerName = element.closest(".premises-card, tr").find(".engineer-select option:selected").text();
+		$("#selectedPremises").val(premises);
+		$("#selectedEngineer").val(engineerName);
+		populateDateEngineerRows();
+		dateEngineerAssignments = [];
+		$("#assignEngineerModal").modal("show");
+		$('#assignEngineerModal').on('shown.bs.modal', function() {
+			$('#assignEngineerModal .engineer-select').select2({
+				placeholder: "Select an engineer",
+				allowClear: true,
+				dropdownParent: $('#assignEngineerModal'),
+				width: '100%'
+			});
+		});
+	}
+
+	function renderEngineerOptions() {
+		let options = '';
+		engineersData.forEach(engineer => {
+			const id = engineer.EngId !== undefined ? engineer.EngId :
+					   (engineer.engId !== undefined ? engineer.engId : engineer.id);
+			const name = engineer.Engname !== undefined ? engineer.Engname :
+						(engineer.engName !== undefined ? engineer.engName :
+						 (engineer.engname !== undefined ? engineer.engname : engineer.name));
+			options += `<option value="${name}">${name}</option>`;
+		});
+		return options;
+	}
+
+	async function populateDateEngineerRows() {
+		const container = $("#dateEngineerList");
+		container.empty();
+		const fromDate = new Date($("#txtFrmDate").val());
+		const toDate = new Date($("#txtToDate").val());
+		if (fromDate > toDate) {
+			container.html('<div class="text-danger fw-bold">To Date Should Be Greater Than From Date</div>');
+			return;
+		}
+		let assignedData = [];
+		try {
+			const res = await axios.post('/CallLog/GetAssignTempEngName', { Compcode: Compcode });
+			assignedData = res.data;
+		} catch (error) {
+			console.error("Error fetching engineer data:", error);
+		}
+		const engineerOptions = renderEngineerOptions();
+		const header = `
+			<div class="row fw-bold" style="padding: 0.5rem !important;">
+				<div class="col-md-6 d-flex justify-content-center">
+					<span style="font-size: 18px;">Date</span>
+				</div>
+				<div class="col-md-6 d-flex justify-content-center">
+					<span style="font-size: 18px;">Engineer Name</span>
+				</div>
+			</div>
+			<div class="row my-1 fw-bold mt-2" id="Header">
+				<div class="col-md-5">
+					<input type="checkbox" id="selectAllDates" class="form-check-input me-2 align-items-center" style="margin-top: 15px;">
+					<label for="selectAllDates" style="padding-top: 10px;">Select All</label>
+				</div>
+				<div class="col-md-7" style="padding-top:2px">
+					<select id="selectAllEngineers" class="form-control engineer-select" disabled>
+						<option value="">Select All</option>
+						${engineerOptions}
+					</select>
+				</div>
+			</div>
+		`;
+		container.append(header);
+		let currentDate = new Date(fromDate);
+		const dateToEngineerMap = {};
+		if (assignedData && assignedData.length > 0) {
+			assignedData.forEach(item => {
+				if (item.DATE) {
+					const dateKey = item.DATE.split('T')[0];
+					dateToEngineerMap[dateKey] = item.EngName;
+				}
+			});
+		}
+		while (currentDate <= toDate) {
+			$('#dateEngineerList').show();
+			const formattedDisplayDate = formatDisplayDate(currentDate);
+			const year = currentDate.getFullYear();
+			const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+			const day = String(currentDate.getDate()).padStart(2, '0');
+			const dateKey = `${year}-${month}-${day}`;
+			const assignedEngineerName = dateToEngineerMap[dateKey];
+
+			let row = `
+				<div class="row date-engineer-row mb-1">
+					<div class="col-md-5 d-flex align-items-center">
+						<input type="checkbox" class="form-check-input me-2 date-checkbox" data-date="${formattedDisplayDate}">
+						<div class="date-label">${formattedDisplayDate}</div>
+					</div>
+					<div class="col-md-7">
+						<select class="form-control engineer-select Engtemp" data-date="${formattedDisplayDate}" data-iso-date="${dateKey}" disabled>
+							<option value="">Select Engineer</option>
+			`;
+			engineersData.forEach(engineer => {
+				const isSelected = assignedEngineerName && engineer.Engname === assignedEngineerName ? 'selected' : '';
+				row += `<option value="${engineer.Engname}" ${isSelected}>${engineer.Engname}</option>`;
+			});
+			row += `
+						</select>
+					</div>
+				</div>
+			`;
+			container.append(row);
+			currentDate.setDate(currentDate.getDate() + 1);
+		}
+		$('#selectAllEngineers').select2({
+			placeholder: "Select All",
+			allowClear: true,
+			dropdownParent: $('#assignEngineerModal'),
+			width: '100%'
+		});
+		$('#assignEngineerModal .engineer-select').select2({
+			dropdownParent: $('#assignEngineerModal'),
+			width: '100%'
+		});
+		$('.date-checkbox').on('change', function () {
+			const totalCheckboxes = $('.date-checkbox').length;
+			const checkedCheckboxes = $('.date-checkbox:checked').length;
+			$('#selectAllDates').prop('checked', totalCheckboxes === checkedCheckboxes);
+			const isChecked = $(this).is(':checked');
+			const date = $(this).data('date');
+			const correspondingDropdown = $(`.engineer-select[data-date="${date}"]`);
+			correspondingDropdown.prop('disabled', !isChecked).trigger('change.select2');
+
+			if (checkedCheckboxes > 0) {
+				$('#selectAllEngineers').prop('disabled', false);
+			} else {
+				$('#selectAllEngineers').prop('disabled', true);
+			}
+		});
+		$('#selectAllDates').on('change', function () {
+			const isChecked = $(this).is(':checked');
+			$('.date-checkbox').prop('checked', isChecked).trigger('change');
+		});
+		$('#selectAllEngineers').on('change', function () {
+			const selectedEngineer = $(this).val();
+			$('.Engtemp').each(function () {
+				if (!$(this).prop('disabled')) {
+					$(this).val(selectedEngineer).trigger('change.select2');
+				}
+			});
+		});
+		$('.engineer-select, .date-checkbox').on('change', updateAssignments);
+	}
+
+	$('#txtFrmDate, #txtToDate').change(function () {
+		populateDateEngineerRows();
+	});
+
+	function updateAssignments() {
+		TempEngASSign = [];
+		$('.date-checkbox:checked').each(function () {
+			const date = $(this).data('date');
+			const engineerName = $(`.engineer-select[data-date="${date}"]`).val();
+			if (engineerName) {
+				TempEngASSign.push({
+					AllocationDate: date,
+					EngName: engineerName,
+					Compcode: Compcode,
+					Created_By: formattedName
+				});
+			}
+		});
+	}
+
+	$('#saveEngineer').on("click", function () {
+		debugger
+		if (TempEngASSign.length === 0) {
+			SweetAlter("Please Select Engineer to save", "warning");
+			return;
+		}
+		$(this).prop('disabled', true);
+		$.ajax({
+			url: '/CallLog/SaveTempraroyEngineer',
+			method: "POST",
+			contentType: "application/json",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			data: JSON.stringify(TempEngASSign),
+			success: function(response) {
+				if (response.success == true) {
+					showToast(response.message, "success");
+					TempEngASSign = [];
+					populateDateEngineerRows();
+					$('#assignEngineerModal').modal('hide');
+				}else if (response.success == false) {
+					showToast(response.message, "error");
+					TempEngASSign = [];
+					populateDateEngineerRows();
+					$('#assignEngineerModal').modal('hide');
+				} else {
+					SweetAlter("Engineers Updated SuccessFully", "success");
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error("Error saving temporary engineer assignments:", error);
+				showToast("Failed to save assignments.", "danger");
+			},
+			complete: function() {
+				$('#saveEngineer').prop('disabled', false);
+			}
+		});
+	});
+
+	function formatDisplayDate(date) {
+		const day = date.getDate();
+		const month = date.toLocaleString('en-US', { month: 'long' });
+		const year = date.getFullYear();
+		return `${day}-${month}-${year}`;
+	}
+
+	// Handle changes for both desktop and mobile views
+	$(document).on("change", ".EngAllocated", function () {
+		let selectedDropdown = $(this);
+		let NcompCode;
+
+		// Check if we're in desktop or mobile view
+		if (selectedDropdown.closest("tr").length > 0) {
+			// Desktop view
+			NcompCode = selectedDropdown.closest("tr").find("a[data-nCompCode]").data("ncompcode");
+		} else {
+			// Mobile view
+			NcompCode = selectedDropdown.data("premises");
+		}
+
+		let EngAllocated = selectedDropdown.val();
+		pendingAllocations = pendingAllocations.filter(item => item.Premises !== NcompCode);
+		pendingAllocations.push({
+			EngName: EngAllocated,
+			CompCode: NcompCode
+		});
+	});
+
+	$('#UpdateAllocatedEng').on("click", function () {
+		if (pendingAllocations.length === 0) {
+			showToast("No changes to save.", "info");
+			return;
+		}
+		$(this).prop('disabled', true);
+		$.ajax({
+			url: '/CallLog/UpdateAllocatedEngineers',
+			method: "POST",
+			contentType: "application/json",
+			dataType: "json",
+			headers: { "Authorization": `Bearer ${authToken}` },
+			data: JSON.stringify(pendingAllocations),
+			success: function(response) {
+				showToast("Engineer allocations updated successfully.", "success");
+				pendingAllocations = [];
+				fetchPremises();
+			},
+			error: function(xhr, status, error) {
+				console.error("Error saving allocations:", xhr.responseText);
+				showToast("Failed to save allocations.", "danger");
+			},
+			complete: function() {
+				$('#UpdateAllocatedEng').prop('disabled', false);
+			}
+		});
+	});
+</script>

@@ -1,0 +1,711 @@
+﻿@{
+	ViewData["Title"] = "Corel";
+	Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/jquery/jQueryUi.css">
+<script src="~/jquery/jQueryUi.js"></script>
+<link href="~/css/summrycss.css" rel="stylesheet" />
+
+<div class="overflow-hidden element mt-2" style="z-index:1;">
+	<div class="ps-0 ">
+		<div style="max-height:855px;">
+			<div class="col-sm-12 row">
+				<div class="col-sm-2">
+					<div class="d-flex align-items-center flex-wrap gap-2">
+						<h4 class="m-0 flex-grow-1 fw-bold hidden" id="heading"></h4>
+					</div>
+				</div>
+				<input type="hidden" id="hdnDept" />
+				<input type="hidden" id="hdnAsstype" />
+				<input type="hidden" id="hdnScrap" />
+				<input type="hidden" id="hdnType" />
+				<input type="hidden" id="HidStore" />
+				<input type="hidden" id="hdnAssetCode" />
+				<input type="hidden" id="hdnBillNo" />
+				<div class="col-sm-10 d-flex justify-content-end align-items-end">
+					<div class="btn-group">
+						<div type="button" id="BtnAssetDetail" class="btn btn btn-primary rounded text-dark fw-bold" style="margin-right: 6px;" data-bs-toggle="modal" data-bs-target="#assetDetailModal" onclick="BindAssetDetails()">
+							<i class="fas fa-cogs"></i> <span class="hidden">Asset Detail</span>
+						</div>
+						<div type="button" id="BtnDetail" class="btn btn-warning rounded text-dark fw-bold" style="margin-right: 6px;" data-bs-toggle="modal" data-bs-target="#detailModal" onclick="BindDetails()">
+							<i class="fas fa-info-circle"></i> <span class="hidden">Detail</span>
+						</div>
+						<div type="button" id="BtnFilter" class="btn btn-success rounded text-dark fw-bold" style="margin-right: 6px;" data-bs-toggle="modal" data-bs-target="#filterModal">
+							<i class="fas fa-filter"></i> <span class="hidden">Filter</span>
+						</div>
+						<div type="button" id="BtnExport" class="btn btn-primary rounded text-dark fw-bold" style="margin-right: 6px;" onclick="Export('tblSummary')">
+							<i class="fas fa-file-export"></i> <span class="hidden">Export</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid p-2">
+				<div style="width: 30%;" id="AssetType">
+					<label for="ddlAsset_Type" style="display: block; margin-bottom: 5px;">Asset Type:</label>
+					<select class="form-select" id="ddlAsset_Type">
+						<option value="T" selected>Tab</option>
+						<option value="F">Firewall</option>
+						<option value="P">Printer</option>
+						<option value="L">Laptop</option>
+						<option value="C">Computer</option>
+						<option value="M">Monitor</option>
+					</select>
+				</div>
+				<div id="DV_SoftData" style="height:700px;">
+					<table style="max-height:645px;" class="table table-bordered table-striped custom-table datatable w-100 dataTable" id="tblSummary">
+						<thead class="bg-light">
+							<tr id="tableHeaders" class="font_SIZE"></tr>
+						</thead>
+						<tbody id="tableBody" class="font_SIZE">
+						</tbody>
+						<tfoot id="tableFooter" style="border:none">
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" style="">
+	<div class="modal-dialog modal-dialog-centered filterModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title fw-bold" id="modalLabel">Filter Options</h5>
+				<button type="button" id="BtnClose" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close">
+					<i class="fas fa-times"></i> <span class="hidden">Close</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="fw-bold ms-5">
+					<h6 style="font-weight: 700 !important">GROUP</h6>
+				</div>
+				<div class="mb-3 d-flex flex-row ms-5 gap-5">
+					<div>
+						<input type="checkbox" id="chkUnit" value="INSTALLED_UNIT" class="checkBox">
+						<label for="chkUnit" class="form-label fw-bold text-dark">Unit</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkDepartment" checked value="DEPT" class="checkBox">
+						<label for="chkDepartment" class="form-label fw-bold text-dark">Department</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkUserName" value="UserName" class="checkBox">
+						<label for="chkUserName" class="form-label fw-bold text-dark">User Name</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkAssets" value="CPU_ASSET_CODE" class="checkBox">
+						<label for="chkAssets" class="form-label fw-bold text-dark">Assets</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkPurchaseYear" value="CPU_V" class="checkBox">
+						<label for="chkPurchaseYear" class="form-label fw-bold text-dark">Purchase Year</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkScrap" value="SCRAP" class="checkBox">
+						<label for="chkScrap" class="form-label fw-bold text-dark">Scrap</label>
+					</div>
+				</div>
+				<div class=" fw-bold ms-5">
+					<h6 style="font-weight: 700 !important">Filter</h6>
+				</div>
+				<div class="mb-3 d-flex flex-row gap-5 ms-5">
+					<div>
+						<input type="checkbox" id="chkScrapFilter" class="checkBox2" value="Scrap">
+						<label for="chkScrapFilter" class="form-label fw-bold">Scrap</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkCpu" checked class="checkBox2" value="C">
+						<label for="chkCpu" class="form-label fw-bold">Cpu</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkLaptop" checked class="checkBox2" value="L">
+						<label for="chkLaptop" class="form-label fw-bold">Laptop</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkOffice" class="checkBox2" value="Office">
+						<label for="chkOffice" class="form-label fw-bold">Office</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkWindows" class="checkBox2" value="Windows">
+						<label for="chkWindows" class="form-label fw-bold">Windows</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkAdobe" class="checkBox2" value="Adobe">
+						<label for="chkAdobe" class="form-label fw-bold">Adobe</label>
+					</div>
+					<div>
+						<input type="checkbox" id="chkCorel" class="checkBox2" value="Corel">
+						<label for="chkCorel" class="form-label fw-bold">Corel</label>
+					</div>
+				</div>
+				<div class="row d-flex flex-lg-row justify-content-between mt-4">
+					<div class="col-lg-2 mb-3" style="width: 300px">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold text-dark">Unit</div>
+							<div id="ddlUnit" class="card-body" style="max-height: 200px; max-width:300px; overflow-y: auto;"></div>
+						</div>
+					</div>
+					<div class="col-lg-2 mb-3" style="width: 300px">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold text-dark">Department</div>
+							<div id="ddlDepartment" class="card-body" style="max-height: 200px; max-width:300px; overflow-y: auto;"></div>
+						</div>
+					</div>
+					<div class="col-lg-2 mb-3" style="width: 300px">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold text-dark">Modal No</div>
+							<div id="ddlModano" class="card-body" style="max-height: 200px; max-width:300px; overflow-y: auto;"></div>
+						</div>
+					</div>
+					<div class="col-lg-2 mb-3" style="width: 300px">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold text-dark">Reporting Head</div>
+							<div id="ddlReportingHead" class="card-body" style="max-height: 200px; max-width:300px; overflow-y: auto;"></div>
+						</div>
+					</div>
+					<div class="col-lg-2 mb-3" style="width: 300px">
+						<div class="card shadow-sm">
+							<div class="card-header fw-bold text-dark">Make</div>
+							<div id="ddlMake" class="card-body" style="max-height: 200px; max-width:300px; overflow-y: auto;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success" id="btnExecute" onclick="FilterData()" data-bs-dismiss="modal">Execute</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered filterModal">
+		<div class="modal-content" style="height: 70%; display: flex; flex-direction: column;">
+			<div class="modal-header d-flex justify-content-between">
+				<h5 class="modal-title fw-bold" id="detailModalLabel">Detail Information</h5>
+				<div>
+					<button type="button" id="BtnDetailExport" class="btn btn-primary rounded text-light fw-bold" onclick="Export('tblDetail')">
+						<i class="fas fa-file-export"></i> <span class="hidden">Export</span>
+					</button>
+					<button type="button" id="BtnClose" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close">
+						<i class="fas fa-times"></i>  <span class="hidden">Close</span>
+					</button>
+				</div>
+			</div>
+			<div class="modal-body" style="flex-grow: 1; overflow-y: auto;">
+				<div class="table-responsive">
+					<table style="width: 100%;" class="table table-bordered table-striped custom-table datatable w-100 dataTable" id="tblDetail">
+						<thead class="bg-light">
+							<tr id="tblHeaders" class="font_SIZE"></tr>
+						</thead>
+						<tbody id="tblBody" class="font_SIZE">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Asset Detail Modal -->
+<div class="modal fade" id="assetDetailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered assetDetailModal" style="max-width:80%">
+		<div class="modal-content">
+			<div class="modal-header d-flex justify-content-between">
+				<h5 class="modal-title fw-bold" id="detailModalLabel">Asset Detail</h5>
+				<div class="d-flex">
+					<button type="button" class="btn btn-primary rounded text-light fw-bold" style="margin-right: 10px;" id="BtnDetailExport" onclick="Export('tblAssetDetail')">
+						<i class="fas fa-file-export"></i> <span class="hidden">Export</span>
+					</button>
+					<button type="button" id="BtnClose2" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close">
+						<i class="fas fa-times"></i>   <span class="hidden">Close</span>
+					</button>
+				</div>
+			</div>
+			<div class="modal-body">
+				<table style="max-height:645px;" class="table table-bordered table-striped custom-table datatable w-100 dataTable" id="tblAssetDetail">
+					<thead class="bg-light">
+						<tr id="tblAssetDetailHeaders" class="font_SIZE"></tr>
+					</thead>
+					<tbody id="tblAssetDetailBody" class="font_SIZE">
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Row Detail Modal -->
+<div class="modal fade" id="rowDetailModal" tabindex="-1" aria-labelledby="rowDetailModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered filterModal">
+		<div class="modal-content">
+			<div class="modal-header d-flex justify-content-between">
+				<div>
+					<h5 class="modal-title" id="rowDetailModalLabel">Row Details</h5>
+				</div>
+				<div>
+					<button type="button" id="BtnDetailExport" class="btn btn-primary rounded text-light fw-bold" onclick="Export('tblDetail')">
+						<i class="fas fa-file-export"></i>   <span class="hidden">Export</span>
+					</button>
+					<button type="button" id="" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close" style="margin-left: 15px;">
+						<i class="fas fa-times"></i>   <span class="hidden">Close</span>
+					</button>
+				</div>
+			</div>
+			<div class="modal-body" style="height:450px;overflow-y:scroll">
+				<table style="max-height:645px;" class="table table-bordered table-striped custom-table datatable w-100 dataTable" id="tblRowDetails">
+					<thead class="bg-light">
+						<tr id="tblRowDetailsHeaders" class="font_SIZE"></tr>
+					</thead>
+					<tbody id="tblRowDetailsBody" class="font_SIZE">
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Table Detail Modal -->
+<div class="modal fade" id="tbtDetailDetailModal" tabindex="-1" aria-labelledby="tbtDetailDetailModal" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" style="max-width: 60%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title fw-bold" id="tbtDetailDetailModal">Row Details</h5>
+				<button type="button" id="" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close" style="margin-left: 82%;">
+					<i class="fas fa-times"></i> Close
+				</button>
+			</div>
+			<div class="modal-body" style="height:300px;overflow-y:scroll">
+				<table class="table table-bordered table-striped custom-table datatable w-100 dataTable" id="tblDetailRowDetails">
+					<thead class="bg-light">
+						<tr id="tblDetailRowDetailsHeaders" class="font_SIZE"></tr>
+					</thead>
+					<tbody id="tblDetailRowDetailsBody" class="font_SIZE">
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Dialogs -->
+<div class="modal fade" id="Dialog" tabindex="-1" aria-labelledby="Dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 60%;">
+		<div class="modal-content shadow-lg rounded">
+			<div class="modal-header d-flex justify-content-between">
+				<h5 class="modal-title fw-bold" id="tbtDetailDetailModal">Row Details</h5>
+				<div class="d-flex gap-3">
+					<button type="button" id="BtnImages" class="btn btn-warning" onclick="OpenAssetImageDialog()">
+						<i class="fa-solid fa-images"></i>  <span class="hidden">Images</span>
+					</button>
+					<button type="button" id="" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close">
+						<i class="fas fa-times"></i>  <span class="hidden">Close</span>
+					</button>
+				</div>
+			</div>
+			<div class="modal-body p-3">
+				<iframe src="" width="100%" height="600px" frameborder="0"></iframe>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal for Uploading and Viewing Images -->
+<div class="modal fade" id="imageDialog" tabindex="-1" aria-labelledby="imageDialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content shadow-lg rounded">
+			<div class="modal-header d-flex justify-content-between">
+				<h5 class="modal-title fw-bold" id="imageDialog">View Images</h5>
+				<button type="" class="btn btn-danger rounded" data-bs-dismiss="modal" aria-label="Close">
+					<i class="fas fa-times"></i> Close
+				</button>
+			</div>
+			<div class="modal-body p-3">
+				<div class="overflow-auto" id="imageContent" style="max-height: 400px;">
+					<div class="row d-flex justify-content-evenly" id="imageRow">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var Depart ="";
+	let row = ""
+	let rowData12 = [];
+	let currentRowId = null;
+	let rowDataArray = [];
+	let type=""
+	const RootUrl ="@ViewBag.RootUrl"
+	var url = window.location.href;
+	var params = new URLSearchParams(window.location.search);
+	var Filter = params.get('Filter');
+	var ReportType = params.get('ReportType');
+	var Type = "0"
+	let UrlType = params.get('Type')
+	var apiBaseUrl = "@ViewBag.ApiBasurl";
+	let authToken = localStorage.getItem("authToken");
+	let tableid='tblSummary';
+	let checkedDepartment = [" " , "~" , "ACCESSORY STORE" , "ACCOUNTS" , "ADMINISTRATION" , "CAD" , "CUTTER / EMB / CUTTING" , "DESIGNING" , "EDI / PACKING" , "EMBROIDERY" , "ERP SUPPORT" , "FABRIC (SOURCING)" , "FABRIC STORE" , "GM / FACTORY MANAGER / PROD MANAGER / ASSISTANT" , "IE & LINE PLANNING" , "IT" , "LAB" , "MERCHANDISING" , "PACKING" , "PERSONNEL" , "WASHING" , "USER SUPPORT ( HARDWARE + EMAIL )" , "SHIPPING - BANKING - IMPORTS" , "PPC" , "PROCESSING" , "PRODUCTION ENTRY / R" , "PRODUCTION ENTRY / REPORTING" , "PURCHASE" , "Q.A" , "REUSABLE IN STOCK" , "SAMPLING" , "SCRAP IN STOCK" , "SERVER" , "SERVER-II" , "SEWING"]
+
+	$(document).ready(function() {
+		$('#AssetType').hide()
+		let selectedText = $('#AssetType option:selected').text();
+		if(ReportType==null || ReportType=="")
+		{
+			$('#heading').text(`${Filter} Licence`);
+		}else if (ReportType === "Inventory" && (Filter === "Computer" || Filter === "Adobe" || Filter === "Corel"))
+		{
+			$('#heading').text(`${Filter}`);
+		}else if(Filter === null)
+		{
+			$('#heading').text(`${selectedText}`);
+		}else
+		{
+			$('#heading').text(`${Filter} ${ReportType}`);
+		}
+		BindDepartment()
+		bondReportingHead()
+		BindModelNo()
+		BindUnit()
+		BindMake()
+		setTimeout(function(){
+			UnckeckCheckboxes()
+		}, 100);
+		setTimeout(function() {
+			getcheckBoxes(function(Depart) {
+			});
+		}, 200);
+		setTimeout(function(){
+			getcheckBoxes(function(Depart) {
+				BindOfficeInventory(Depart);
+			});
+		}, 300);
+	});
+
+	setupCheckAll('#chkUnits', '.chkUnit');
+
+	setupCheckAll('#chkDepartments', '.chkDepartment');
+
+	setupCheckAll('#chkModalNo', '.chkModalNo');
+
+	setupCheckAll('#chkReportingHead', '.chkReportingHead');
+
+	setupCheckAll('#chkMake', '.chkMake');
+
+	function Export(tableId) {
+		debugger
+		var FileName = `${Filter} ${ReportType}`;
+		exportToExcel(tableId, FileName);
+		showToast("Data Exported Successfully", "success");
+	}
+
+	function BindUnit()
+	{
+		let URL = `/AssetsReport/BindUnit`;
+		loadCheckboxesWithSearch2(URL,'INSTALLED_UNIT','INSTALLED_UNIT','ddlUnit','chkUnit')
+	}
+
+	function BindDepartment() {
+
+		let URL = `/AssetsReport/GetDepartment`;
+		loadCheckboxesWithSearchChecked(URL,'DEPT','DEPT','ddlDepartment','chkDepartment',checkedDepartment)
+	}
+
+	function getcheckBoxes(callback){
+		let Depart = "";
+		$('.chkDepartment:checked').each(function () {
+			let val = $(this).val();
+				Depart += val + ',';
+		});
+		callback(Depart);
+	}
+
+	function BindOfficeInventory(Depart) {
+		let asset_Type=""
+		let scroll="485px"
+		if(Filter === null){
+			$('#AssetType').show()
+			Filter=""
+			asset_Type = $('#ddlAsset_Type').val()
+		}else{
+			asset_Type = ""
+		}
+		scroll = (Filter == "Adobe") ? "404px" :
+		(Filter == "Corel") ? "160px" :
+		(Filter == "Office" && ReportType == "Reg") ? "413px" : scroll;
+		if(Filter == "Office" && ReportType == "Reg")
+		{
+			Type = "0"
+		}
+		if(Filter== "Office" && UrlType=="7" )
+		{
+			Type = UrlType
+			scroll="394px"
+		}else if(Filter== "Adob" && UrlType=="7" )
+		{
+			Type = UrlType
+			scroll="314px"
+		}if(ReportType=="" || ReportType== null)
+		{
+		   ReportType="Inventory"
+		}
+		let GROUPBy = $("#chkDepartment").val();
+		let GroupByParams = GROUPBy + "," ;
+		$('#hdnType').val()
+
+		let Payload = {
+			UNIT: "", Dept: Depart,MAKE: "", MODELNO: "", Fillter: Filter, ReportType: ReportType, GROUPBy: GroupByParams,
+			REPORTINGHEAD: "", Type:Type, AssetType:asset_Type
+		};
+		let URL = `/AssetsReport/BindReport`;
+		DatatablePopulationwithFooter(URL, tableid, authToken, Payload, "POST",scroll);
+	}
+
+	$('#ddlAsset_Type').on('change', function () {
+		getcheckBoxes(function (Depart) {
+			BindOfficeInventory(Depart);
+			$('#AssetType').show()
+			let selectedText = $('#AssetType option:selected').text();
+			 $('#heading').text(`${selectedText}`);
+		});
+	});
+
+	function BindModelNo()
+	{
+		let URL = `/AssetsReport/BindModalNo`;
+		loadCheckboxesWithSearch2(URL,'Model_Number','Model_Number','ddlModano','chkModalNo')
+	}
+	       
+	function BindMake()
+	{
+		let URL = `/AssetsReport/BindMake`;
+		loadCheckboxesWithSearch2(URL, "MAKE", "MAKE", "ddlMake", "chkMake");
+	}
+
+	function bondReportingHead()
+	{
+		let URL = `/AssetsReport/BindReportingHead`;
+		loadCheckboxesWithSearch2(URL, "Reporting_Head", "Reporting_Head", "ddlReportingHead", "chkReportingHead");
+	}
+
+	function FilterData() {
+		let groupBy = "";
+		$('.checkBox:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				groupBy += val + ',';
+			}
+		});
+		let FilterBy = "";
+		$('.checkBox2:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				FilterBy += val + ',';
+			}
+		});
+		let Unit = "";
+		$('.chkUnit:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				Unit += val + ',';
+			}
+		});
+		let ModelNo = "";
+		$('.chkModalNo:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				ModelNo += val + ',';
+			}
+		});
+		let reportingHead = "";
+		$('.chkReportingHead:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				reportingHead += val + ',';
+			}
+		});
+		let make = "";
+		$('.chkMake:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				make += val + ',';
+			}
+		});
+		let Dep = "";
+		$('.chkDepartment:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				Dep += val + ',';
+			}
+		});
+		let type = "0";
+		let FilterByParam = FilterBy.slice(0, -1);
+		let Payload = {
+			fillter: FilterByParam,reportType: ReportType,groupBy: groupBy,type: type,
+			installeD_UNIT: Unit,dept: Dep,make: make,reportinghead: reportingHead,
+			model_Number: ModelNo,swName: "",groupUnit: "",fillterColumn: "",
+			assetType: "",colName: ""
+		};
+		let URL = `${apiBaseUrl}/Asset/BindReport`;
+		DatatablePopulation(URL, tableid, authToken, Payload, "POST");
+	}
+
+	function UnckeckCheckboxes()
+	{
+		 let uncheckedValues = [
+			"INSURANCE", "EDP", "EDP STOCK", "EDP STOCK - II",
+			"MIS", "OTHER", "SCRAP", "SCRAP IN STOCK",
+			"SERVER-II", "REUSABLE IN STOCK"
+		 ];
+		$('.chkDepartment').each(function() {
+			if (uncheckedValues.includes($(this).val())) {
+				$(this).prop('checked', false);
+			}
+		});
+	}
+
+	function BindDetails(){
+		 let Dep = "";
+		$('.chkDepartment:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				Dep += val + ',';
+			}
+		});
+		let AssetType = "";
+		$('.checkBox2:checked').each(function() {
+			let val = $(this).val();
+			AssetType += val + ",";
+		});
+		let GROUPBy = $("#chkDepartment").val();
+		let GroupByParams = GROUPBy + "," ;
+		$('#hdnScrap').val(0)
+		let payload = {
+			asset_Type: AssetType,installeD_UNIT: "",dept: Dep,make: "",model_Number: "",fillter: Filter,reportType: ReportType,
+			groupBy: GroupByParams,reportinghead: "",swName: "",groupUnit: "",groupDept: "",groupUser: "",groupAsset: "",assetDetail: "1",
+			groupCPU_V: "",scrap: $('#hdnScrap').val(),fillterColumn: "",colName: ""
+		}
+		let URL = `${apiBaseUrl}/Asset/BindReportDetails`;
+		ModalDataTable(URL, "tblDetail", authToken, payload, "POST","tblHeaders","tblBody","300px");
+	}
+
+	function BindAssetDetails(){
+		let Dep = "";
+		$('.chkDepartment:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				Dep += val + ',';
+			}
+		});
+		let AssetType = "";
+		$('.checkBox2:checked').each(function() {
+			let val = $(this).val();
+			AssetType += val + ",";
+		});
+		let GROUPBy = $("#chkDepartment").val();
+		let GroupByParams = GROUPBy + "," ;
+		let scrap = "0";
+		let payload = {
+			asset_Type: AssetType,installeD_UNIT: "",dept: Dep,make: "",model_Number: "",fillter: Filter,reportType: ReportType,
+			groupBy: GroupByParams,reportinghead: "",swName: "",groupUnit: "",groupDept: "",groupUser: "",groupAsset: "",assetDetail:"2",
+			groupCPU_V: "",scrap: scrap,fillterColumn: "",colName: ""
+		}
+		let URL = `${apiBaseUrl}/Asset/BindReportDetails`;
+		ModalDataTable(URL, "tblAssetDetail", authToken, payload, "POST","tblAssetDetailHeaders","tblAssetDetailBody","300px");
+	}
+
+	$(document).on("click", "#tblSummary tbody tr td", function () {
+		let Dep = "";
+		$('.chkDepartment:checked').each(function () {
+			let val = $(this).val();
+			if (val && val !== "0") {
+				Dep += val + ',';
+			}
+		});
+		let AssetType = "";
+		$('.checkBox2:checked').each(function() {
+			let val = $(this).val();
+			AssetType += val + ",";
+		});
+		let GROUPBy = $("#chkDepartment").val();
+		let GroupByParams = GROUPBy + "," ;
+		let scrap = "0";
+		let rowData = $(this).closest("tr").find("td").map(function () {
+			return $(this).text().trim();
+		}).get();
+		let cellIndex = $(this).index();
+		let ColData = $("#tblSummary thead tr th").map(function() {
+			return $(this).text().trim();
+		}).get();
+		let clickedHeader = ColData[cellIndex];
+		const payload = {
+			asset_Type: AssetType,installeD_UNIT: "",dept: Dep,make: "",model_Number: "",fillter: Filter,reportType: ReportType,groupBy: GroupByParams,reportinghead: "",
+			swName: clickedHeader,groupUnit: "",groupDept: rowData[0],groupUser: "",groupAsset: rowData[3],assetDetail: "1",groupCPU_V: "",scrap: scrap,fillterColumn: "",
+		};
+		let URL = `${apiBaseUrl}/Asset/BindReportDetails`;
+		ModalDataTableAssetdaetail(URL, "tblRowDetails", authToken, payload, "POST", "tblRowDetailsHeaders", "tblRowDetailsBody","150px");
+		$("#rowDetailModal").modal("show");
+	});
+
+	$(document).on("click", "#tblAssetDetail tbody tr", function () {
+		let RorDetails = []
+		row = $(this).attr('id');
+		$(this).find('td').each(function () {
+			RorDetails.push($(this).text().trim());
+		});
+		iframCall(RorDetails[2],RorDetails[36])
+	});
+
+	$(document).on("click", "#tblDetail tbody tr", function () {
+		let RorDetails = []
+		row = $(this).attr('id');
+		$(this).find('td').each(function () {
+			RorDetails.push($(this).text().trim());
+		});
+		iframCall(RorDetails[3],RorDetails[14])
+	});
+
+	function iframCall(assetCode,BillNo){
+		let URL = `/Dashboard/DetailPage?AssetCode=${assetCode}`;
+		$('#Dialog iframe').attr('src', URL);
+		$('#hdnAssetCode').val(assetCode)
+		$('#hdnBillNo').val(BillNo)
+		$('#Dialog').modal('show');
+		$('#hdnAssetCode').val(assetCode)
+	}
+	  
+	//====================== image dailog ===========================
+
+	function OpenAssetImageDialog() {
+		let AssetCode = $("#hdnAssetCode").val();
+		let HBillSrNo = $("#hdnBillNo").val();
+		AssetCode = AssetCode.replaceAll('/', '-');
+		let imageRow = $("#imageRow");
+		imageRow.empty();
+		let imagePaths = [
+			`${RootUrl}/AssetImage/${AssetCode}.jpg`,
+			`${RootUrl}/BillImage/${HBillSrNo}.jpg`,
+			`${RootUrl}/Assets/${AssetCode}/1.jpg`,
+			`${RootUrl}/Assets/${AssetCode}/2.jpg`,
+			`${RootUrl}/Assets/${AssetCode}/3.jpg`,
+			`${RootUrl}/Assets/${AssetCode}/4.jpg`,
+			`${RootUrl}/Assets/${AssetCode}/5.jpg`
+		];	 
+		imagePaths.forEach((path) => {
+			let imgElement = `
+				<div class="col-md-4 mb-3" style="width: 350px; height: 350px;">
+					<img src="${path}" class="img-fluid rounded shadow-sm" alt="${AssetCode} image not found" onclick="ZoomerOPEN(this)"
+						style="width: 100%; height: 100%; object-fit: cover;"
+						onerror="this.onerror=null; this.src='${path}';">
+				</div>`;
+			imageRow.append(imgElement);
+		});
+		$('#imageDialog').modal('show');
+	}
+</script>

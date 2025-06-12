@@ -1,0 +1,720 @@
+﻿@{
+	ViewData["Title"] = "Home";
+	Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<div style="height: 100%;" class="overflow-hidden">
+	<div class="py-4 h-100" id="containerOfCards">
+		<div class="row d-flex">
+			<div class="col-5">
+				<div class="row d-flex">
+					<div class="col-sm-3 text-center">
+						<label class="form-label fw-bold">Asset Type:</label>
+					</div>
+					<div class="col-sm-6">
+						<select id="ddlAssetType" class="form-select">
+							<option value="">Select Asset Type</option>
+							<option value="C" selected>Computer</option>
+							<option value="M">Monitor</option>
+							<option value="L">Laptop</option>
+							<option value="T">Tab</option>
+							<option value="V">TV</option>
+							<option value="RP">Printer (Rented)</option>
+							<option value="P">Printer</option>
+							<option value="W">Switch</option>
+							<option value="F">Firewall</option>
+							<option value="B">Face Machine</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col-4">
+			</div>
+			<div class="col-3">
+				<div class="d-flex justify-content-end">
+					<div type="button" id="BtnSettingsInitial" class="btn btn-secondary rounded text-light fw-bold" style="margin-right: 6px;" onclick="toggleSettings()">
+						<i class="fa-solid fa-gear"></i> <span>Settings</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="cardContainer" class="h-100 overflow-y-auto overflow-x-hidden"></div>
+	</div>
+	<!-- Fix invalid HTML -->
+	<div id="detailContainer" style="display: none;">
+		<div class="row d-flex align-items-center">
+			<div class="col-2 text-end d-flex">
+				<div class="btn btn-info text-light fw-bold rounded-5" id="btnBack" onclick="goBack()">
+					<i class="fa-solid fa-backward"></i> <span>Back</span>
+				</div>
+			</div>
+			<div class="col-7 d-flex justify-content-center align-content-center">
+				<p id="Heading"></p>
+			</div>
+			<div class="col-3 d-flex justify-content-end">
+				<div type="button" id="BtnExport" class="btn btn-primary rounded text-light fw-bold" style="margin-right: 6px;" onclick="Export()">
+					<i class="fas fa-file-export"></i> <span>Export</span>
+				</div>
+				<div type="button" id="BtnSettings" class="btn btn-secondary rounded text-light fw-bold" style="margin-right: 6px;" onclick="toggleSettings()">
+					<i class="fa-solid fa-gear"></i> <span>Settings</span>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div id="DV_SoftData" class="overflow-auto" style="height:100% !important">
+				<table class="table table-bordered table-striped custom-table datatable w-100" id="tblAsset">
+					<thead class="table-light">
+						<tr id="tableHeaders" class="font_SIZE"></tr>
+					</thead>
+					<tbody id="tableBody" class="font_SIZE"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
+
+	<aside class="settings-sidebar shadow" id="settingsSidebar">
+		<header class="settings-sidebar-header d-flex justify-content-between align-items-center border-bottom">
+			<h5 class="mb-0">Filter Settings</h5>
+			<button class="btn-close-settings btn text-dark" onclick="toggleSettings()" aria-label="Close">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+		</header>
+
+		<div class="settings-content p-3">
+			<div class="row g-4">
+				<!-- Select Columns Section -->
+				<section class="col-md-4" id="Columns">
+					<div class="row mb-1">
+						<div class="col-sm-12">
+							<h4 class="text-center">Select Columns</h4>
+						</div>
+					</div>
+
+					<div class="border rounded p-3 bg-light">
+						<div class="form-check d-flex justify-content-between align-items-center mb-3">
+							<label class="form-check-label fw-semibold" for="chkSelectAll">Select All</label>
+							<input class="form-check-input" type="checkbox" id="chkSelectAll" />
+						</div>
+						<div id="checkBoxContainer" class="overflow-x-hidden overflow-y-scroll" style="max-height: 670px;"></div>
+					</div>
+				</section>
+
+				<!-- Configuration Section -->
+				<section class="col-md-8" id="filters">
+					<div class="row">
+						<div class="col-sm-2">
+							<input type="button" class="btn btn-success" id="btnFilterInitial" value="Apply Filter" />
+						</div>
+						<div class="col-sm-10">
+							<h4 class="text-center">Configuration</h4>
+						</div>
+					</div>
+					<div class="row g-3">
+						<!-- Row 1 -->
+						<div class="col-sm-4">
+							<label class="form-label">Purchase Year</label>
+							<div id="ddlPurchaseYear" class="filter-box"></div>
+						</div>
+						<div class="col-sm-4">
+							<label class="form-label">Unit</label>
+							<div id="ddlUnit" class="filter-box"></div>
+						</div>
+						<div class="col-sm-4">
+
+							<label class="form-label">Department</label>
+							<div id="ddlDepartment" class="filter-box"></div>
+						</div>
+						<!-- Row 2 -->
+						<div class="col-sm-4">
+							<label class="form-label">Processor</label>
+							<div id="ddlProcessor" class="filter-box"></div>
+						</div>
+						<div class="col-sm-4">
+							<label class="form-label">Make</label>
+							<div id="ddlBrand" class="filter-box"></div>
+						</div>
+						<div class="col-sm-4">
+							<label class="form-label">Model</label>
+							<div id="ddlModel" class="filter-box"></div>
+						</div>
+
+						<!-- Row 3 -->
+						<div class="col-sm-4">
+						</div>
+
+
+					</div>
+				</section>
+			</div>
+		</div>
+	</aside>
+
+	<!-- Modal to show Row Details -->
+	<div class="modal fade" id="assetModal" tabindex="-1" aria-labelledby="assetModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 80%;">
+			<div class="modal-content shadow-lg rounded">
+				<div class="modal-header">
+					<h5 class="modal-title fw-bold" id="tbtDetailDetailModal"></h5>
+					<div class="d-flex gap-3" style="margin-left: 77%;">
+						<button type="button" id="" class="btn btn-danger rounded  " data-bs-dismiss="modal" aria-label="Close">
+							<i class="fas fa-times"></i> Close
+						</button>
+					</div>
+				</div>
+				<div class="modal-body">
+					<iframe src="" width="100%" height="600px" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+<script>
+	let urlParams = new URLSearchParams(window.location.search);
+	let actionFromURL ='';
+	let parsedData = [];
+	let Model = []
+	let Unit = []
+	let Depart = []
+	let Brand = [];
+	let Processor = [];
+	let PurchaseYear = []
+	let authToken=''
+
+	let TabelHeaders = ["CPU_ASSET_CODE", "Model_Number", "Ip_No", "USER_NAME", "Asset_Type", "MAKE", "PURCHASE_DATE_YEAR", "DEPT", "INSTALLED_UNIT", "Machine_Sl_No"];
+
+	$(document).ready(function () {
+		 loadFillerData();
+		 $(document).on('keyup', '#searchAsset', function() {
+			 let searchText = $(this).val();
+			 $('.asset-item').each(function() {
+				 let text = $(this).find('.asset-text').text();
+				 $(this).toggle(text.includes(searchText));
+			 });
+		 });
+		 appendCards();
+		 $('#ddlAssetType').change(function(){
+			 loadFillerData();
+			 appendCards();
+		 });
+	})
+
+	function loadFillerData(){
+		 BindProcessor();
+		 BindMake();
+		 BindPurchaseYear();
+		 BindWindowsVersion();
+		 BindColNames();
+		 BindUnit();
+		 BindModel();
+		 BindDepartment();
+	}
+
+	function updateTableHeaders() {
+		TabelHeaders = [];
+		$('.chkRow:checked').each(function () {
+			let cleanedHeader = $(this).val().replace(/[\[\]]/g, '');
+			TabelHeaders.push(cleanedHeader);
+		});
+		console.log('Updated TableHeaders:', TabelHeaders);
+	}
+
+	let colors = [
+		  "rgba(216, 88, 3, 0.699)",
+		  "rgba(245, 57, 235, 0.836)",
+		  "rgba(0, 153, 255, 0.75)",
+		  "rgba(60, 179, 113, 0.75)",
+		  "rgba(255, 99, 71, 0.75)",
+		  "rgba(255, 165, 0, 0.75)",
+		  "rgba(100, 149, 237, 0.75)",
+		  "rgba(75, 0, 130, 0.75)",
+		  "rgba(207, 33, 120, 0.856)",
+		  "rgba(30, 176, 187, 0.75)"
+	];
+
+	function appendCards() {
+		let actionPayload = {
+			Action: 'AssetCount',
+			AssetType: $('#ddlAssetType').val()||'',
+			PurchaseYear: formatInClause(PurchaseYear)||'',
+			Department: formatInClause(Depart)||'',
+			Unit: formatInClause(Unit)||'',
+			Processor: formatInClause(Processor)||'',
+			Brand: formatInClause(Brand)||'',
+			Model: formatInClause(Model)||''
+		};
+
+		let $container = $('#cardContainer');
+		$container.empty();
+		let selectedAssetType = $('#ddlAssetType').val();
+		lastSelectedAssetType = selectedAssetType;
+
+		$.ajax({
+			url: '/Dashboard/BindCounting',
+			type: 'POST',
+			data: JSON.stringify(actionPayload),
+			contentType: 'application/json',
+			dataType: 'json',
+			success: function(data) {
+				console.log(data);
+				let parsedData = typeof data === "string" ? JSON.parse(data) : data;
+
+				if (!parsedData || parsedData.length === 0) {
+					$container.html('<p class="text-danger">No data available.</p>');
+					return;
+				}
+
+				let shuffledColors = colors.slice().sort(() => Math.random() - 0.5);
+
+				parsedData.forEach((item, index) => {
+					if (index % 4 === 0) {
+						$row = $('<div class="row mt-3"></div>');
+						$container.append($row);
+					}
+
+					let color = shuffledColors[index % shuffledColors.length];
+
+					let $col = $(`
+						<div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+							<div class="card py-3 text-light" style="background-color: ${color}; cursor: pointer;">
+								<div class="p-3 pt-2">
+									<div class="text-center pt-1">
+										<h4 class="mb-1 text-light">${item.Cnt}</h4>
+									</div>
+								</div>
+								<div class="text-center p-2 pt-0">
+									<p class="mb-0 fs-5 fw-bold">${item.View_MenuName}</p>
+								</div>
+							</div>
+						</div>
+					`);
+
+					$col.on('click', function () {
+
+
+
+						ReDirection(item.View_MenuName, PurchaseYear, Depart, Unit, Processor, Brand, Model,item.URL,item.MenuID);
+					});
+
+
+					$row.append($col);
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error('Error fetching asset details:', error);
+				$container.html('<p class="text-danger">Failed to load asset details.</p>');
+			}
+		});
+	}
+
+	function ReDirection(Action, PurchaseYear, Department, Unit, Processor, Make, Model,rawUrl,viewName,MenuID) {
+
+		if(rawUrl){
+		   let url = new URL(window.location.origin + rawUrl);
+			url.searchParams.set("AssetType", $('#ddlAssetType').val() || '');
+			url.searchParams.set("MenuID", MenuID || '');
+			$('#assetModal iframe').attr('src', url);
+			$('#assetModal').modal('show');
+			$('#tbtDetailDetailModal').text(`${Action}`);
+			return;
+		}
+		else{
+			actionFromURL =Action;
+			$('#containerOfCards').hide();
+			$('#detailContainer').show();
+			BindAssetDetails(Action);
+		}
+	}
+
+	function BindAssetDetails(action) {
+		let Asset_Type = $("#ddlAssetType").find("option:selected").text();
+		action = action.replace('Assets','')
+		action = action.replace('Asset','')
+		$('#Heading').text(` ${Asset_Type} ${action}`)
+
+		updateTableHeaders();
+
+		let escapedHeaders = TabelHeaders.map(header => {
+			return `[${header}]`;
+		});
+
+		let UpdatedHeaders = escapedHeaders.join();
+
+		let actionPayload = {
+			Action: actionFromURL,
+			AssetType: $("#ddlAssetType").find("option:selected").val(),
+			PurchaseYear: PurchaseYear.join(',') || '',
+			Department: Depart.join(',') || '',
+			Model: Model.join(',') || '',
+			Unit: Unit.join(',') || '',
+			Brand: Brand.join(',') || '',
+			Processor: Processor.join(',') || '',
+			Col_Name: UpdatedHeaders,
+		};
+
+		console.log('Payload with escaped columns:', actionPayload);
+		if ($.fn.DataTable.isDataTable('#tblAsset')) {
+			$('#tblAsset').DataTable().destroy();
+		}
+		$('#tableHeaders').empty();
+		$('#tableBody').empty();
+
+		$.ajax({
+			url: '/Dashboard/GetAssetCounts_AndDetails',
+			type: 'POST',
+			data: JSON.stringify(actionPayload),
+			contentType: 'application/json',
+			dataType: 'json',
+			beforeSend: function () {
+				$('#DV_SoftData').append(`<div class="modal" id="loaderModal" tabindex="-1" role="dialog" style="display: block; background: rgba(0,0,0,0.5);">
+					<div class="d-flex justify-content-center text-light align-items-center" style="height: 100vh;">
+						<span class="">Loading...</span>
+						<div class="spinner-border " role="status">
+						</div>
+					</div>
+				</div>`);
+			},
+			success: function(data) {
+				console.log(data)
+				let parsedData = typeof data === "string" ? JSON.parse(data) : data;
+
+				if (!Array.isArray(parsedData) || parsedData.length === 0) {
+					$("#tableBody").append('<tr><td colspan="100%" class="text-center">No data available</td></tr>');
+					return;
+				}
+				let allHeaders = Object.keys(parsedData[0]);
+				let filteredHeaders = allHeaders.filter(header =>
+					TabelHeaders.includes(header)
+				);
+
+				filteredHeaders.forEach(header => {
+					$("#tableHeaders").append(`<th>${header.replace(/\s+/g, ' ').trim()}</th>`);
+				});
+
+				parsedData.forEach(item => {
+					let row = `<tr class="rowHeight">`;
+					filteredHeaders.forEach(header => {
+						let cellData = item[header] !== null && item[header] !== undefined ? item[header] : '';
+						row += `<td>${cellData}</td>`;
+					});
+					row += `</tr>`;
+					$("#tableBody").append(row);
+				});
+
+				$('#tblAsset').DataTable({
+					paging: true,
+					searching: true,
+					ordering: true,
+					pageLength: 200,
+					lengthMenu: [200, 500, 750, 1000, 1500, 2000, 2500, 3000, "All"],
+					scrollCollapse: false,
+					scrollY: "570px",
+					info: true,
+					autoWidth: true,
+					fixedHeader: true,
+				});
+			},
+			error: function(xhr, status, error) {
+				$("#tableBody").append('<tr><td colspan="100%" class="text-center">No data available</td></tr>');
+				console.error('Error fetching detail data:', error);
+			},
+			complete: function () {
+				$('#loaderModal').remove();
+			}
+		});
+	}
+
+	function Export() {
+		updateTableHeaders();
+		let escapedHeaders = TabelHeaders.map(header => {
+
+			return `[${header}]`;
+		});
+		let UpdatedHeaders = escapedHeaders.join();
+		let actionPayload = {
+			Action: actionFromURL,
+			AssetType: $("#ddlAssetType").find("option:selected").val(),
+			PurchaseYear: PurchaseYear.join(',') || '',
+			Department: Depart.join(',') || '',
+			Model: Model.join(',') || '',
+			Unit: Unit.join(',') || '',
+			Brand: Brand.join(',') || '',
+			Processor: Processor.join(',') || '',
+			Col_Name: UpdatedHeaders,
+		};
+
+		$.ajax({
+			url: '/Dashboard/DownloadToExcel',
+			type: 'POST',
+			data: JSON.stringify(actionPayload),
+			contentType: 'application/json',
+			xhrFields: {
+				responseType: 'blob'
+			},
+			success: function(blob) {
+				let link = document.createElement('a');
+				link.href = window.URL.createObjectURL(blob);
+				link.download = `${actionFromURL}.xlsx`;
+				link.click();
+			},
+			error: function(xhr, status, error) {
+				console.error("Download failed", error);
+			}
+		});
+	}
+
+	function goBack() {
+		 $('#containerOfCards').show();
+		 $('#detailContainer').hide();
+		 actionFromURL = 'AssetCount';
+	}
+
+	function toggleSettings() {
+		  document.getElementById('settingsSidebar').classList.toggle('active');
+		  document.getElementById('settingsOverlay').style.display =
+		  document.getElementById('settingsSidebar').classList.contains('active') ? 'block' : 'none';
+	}
+
+	function BindColNames() {
+		$.ajax({
+			url: '/Dashboard/BindColumns',
+			type: 'GET',
+			dataType: 'json',
+			success: function(response) {
+				console.log(response);
+				window.AllColumnData = response;
+				renderCheckboxList();
+			},
+			error: function(xhr, status, error) {
+				console.error('Error fetching columns:', error);
+			}
+		});
+	}
+
+	function renderCheckboxList() {
+		const sectionId = "checkBoxContainer";
+		const columnsToShowLast = ['2003_BE', '2003_REMOVE_INSTALL'];
+		const selectedValuesSet = new Set();
+
+		$('.chkRow:checked').each(function () {
+			selectedValuesSet.add($(this).val());
+		});
+
+		const data = window.AllColumnData || [];
+		const TabelHeadersSet = new Set(TabelHeaders || []);
+		window._fullCheckboxData = data;
+
+		const $searchInput = $(`<input type="text" placeholder="Search..." style="margin-bottom:10px;width:100%; position: sticky; top: 0; background: white; z-index: 10;" class="form-control">`);
+		$(`#${sectionId}`).empty().append($searchInput);
+
+		$searchInput.on('keyup', function () {
+			const searchTerm = $(this).val().toLowerCase();
+			const filtered = window._fullCheckboxData.filter(item =>
+				item.COLUMN_NAME.toLowerCase().includes(searchTerm)
+			);
+			renderFilteredCheckboxes(filtered);
+		});
+
+		renderFilteredCheckboxes(data);
+
+		function renderFilteredCheckboxes(items) {
+			const selectedItems = [];
+			const unselectedItems = [];
+
+			items.forEach(item => {
+				const checkboxVal = `[${item.COLUMN_NAME}]`;
+				const isChecked = selectedValuesSet.has(checkboxVal) || TabelHeadersSet.has(item.COLUMN_NAME);
+				(isChecked ? selectedItems : unselectedItems).push(item);
+			});
+
+			selectedItems.sort((a, b) => a.COLUMN_NAME.localeCompare(b.COLUMN_NAME));
+
+			unselectedItems.sort((a, b) => {
+				const aIsSpecial = columnsToShowLast.includes(a.COLUMN_NAME) ? 1 : 0;
+				const bIsSpecial = columnsToShowLast.includes(b.COLUMN_NAME) ? 1 : 0;
+				if (aIsSpecial !== bIsSpecial) return aIsSpecial - bIsSpecial;
+				return a.COLUMN_NAME.localeCompare(b.COLUMN_NAME);
+			});
+
+			const sortedItems = [...selectedItems, ...unselectedItems];
+
+			$(`#${sectionId} .asset-item`).remove();
+
+			let html = ``;
+			sortedItems.forEach(item => {
+				const checkboxVal = `[${item.COLUMN_NAME}]`;
+				const isChecked = selectedValuesSet.has(checkboxVal) || TabelHeadersSet.has(item.COLUMN_NAME) ? 'checked' : '';
+				html += `
+					<div class="row list-group-item d-flex justify-content-between align-items-center py-1 asset-item">
+						<div class="col-sm-9 col-xs-9">
+							<span class="asset-text ms-1" style="white-space: normal; word-wrap: break-word;">${item.COLUMN_NAME}</span>
+						</div>
+						<div class="col-sm-3 col-xs-3">
+							<input type="checkbox" name="SelectedAssets" class="chkRow form-check-input" value='${checkboxVal}' ${isChecked}>
+						</div>
+					</div>
+				`;
+			});
+
+			$(`#${sectionId}`).append(html);
+
+			$(`#${sectionId} .chkRow`).on('change', function () {
+				const val = $(this).val();
+				if (this.checked) {
+					selectedValuesSet.add(val);
+				} else {
+					selectedValuesSet.delete(val);
+				}
+				renderFilteredCheckboxes(window._fullCheckboxData);
+			});
+		}
+	}
+
+	$('#chkSelectAll').change(function () {
+		$('.chkRow').prop('checked', $(this).is(':checked'));
+	});
+
+	$(document).on('change', '.chkRow', function () {
+		if (!$('.chkRow:checked').length === $('.chkRow').length) {
+		 $('#chkSelectAll').prop('checked', false);
+		}
+		else {
+		 $('#chkSelectAll').prop('checked', $('.chkRow:checked').length === $('.chkRow').length);
+		}
+	});
+
+	function BindProcessor(){
+		   let payload = {
+				 AssetType: $('#ddlAssetType').val()
+		   }
+		  let URL = `/Dashboard/BindProcessor`;
+		  loadCheckboxesWithSearch(URL,'Processor','Processor','ddlProcessor','chkProcessor',payload)
+	}
+
+	function BindMake(){
+		  let payload = {
+			 AssetType: $('#ddlAssetType').val()
+		  }
+		  let URL = `/Dashboard/BindMake`;
+		  loadCheckboxesWithSearch(URL,'Brand','Brand','ddlBrand','chkBrand',payload)
+	}
+
+	function BindWindowsVersion(){
+		   let payload = {
+				 AssetType: $('#ddlAssetType').val()
+		   }
+		  let URL = `/Dashboard/BindVersion`;
+		  loadCheckboxesWithSearch(URL,'Version','Version','ddlWindowsVersion','chkVersion',payload)
+	}
+
+	function BindPurchaseYear(){
+		  let payload = {
+			 AssetType: $('#ddlAssetType').val()
+		  }
+		  console.log("Purchase",payload)
+		 let URL = `/Dashboard/BindPurchaseYear`
+		 loadCheckboxesWithSearch(URL,'YearPurchase','YearPurchase','ddlPurchaseYear','chkPuchaseYear',payload)
+	}
+
+	function BindDepartment(){
+		  let payload = {
+			 AssetType: $('#ddlAssetType').val()
+		  }
+		  let URL = `/Dashboard/BindDepartment`
+		  loadCheckboxesWithSearch(URL,'Department','Department','ddlDepartment','chkDepartment',payload)
+	}
+
+	function BindUnit(){
+		  let payload = {
+			 AssetType: $('#ddlAssetType').val()
+		  }
+		  let URL = `/Dashboard/BindUnit`
+		  loadCheckboxesWithSearch(URL,'UNIT','UNIT','ddlUnit','chkUnit',payload)
+	}
+
+	function BindModel(){
+		let payload = {
+		  ssetType: $('#ddlAssetType').val()
+		}
+		let URL = `/Dashboard/BinModel`
+		loadCheckboxesWithSearch(URL,'model','model','ddlModel','chkmodel',payload)
+	}
+
+	function formatInClause(arr) {
+		return arr && arr.length > 0 ? arr.map(x => `${x}`).join(',') : null;
+	}
+
+	$('#BtnSettingsInitial').on('click',function(){
+		  $('#Columns').hide()
+		  $('#filters').show()
+		  $('#filters').removeClass('col-md-8')
+		  $('#filters').addClass('col-md-12')
+	})
+
+	$('#BtnSettings').on('click',function(){
+		 $('#Columns').show()
+		 $('#filters').show()
+		 $('#filters').removeClass('col-md-12')
+		 $('#filters').addClass('col-md-8')
+	})
+
+	$('#btnFilterInitial').on('click', function(){
+		  PurchaseYear=[];
+		  Processor=[];
+		  Brand=[];
+		  Depart=[];
+		  Unit=[];
+		  Model=[];
+
+		  $('.chkPuchaseYear:checked').each(function() {
+			   PurchaseYear.push($(this).val());
+		  });
+
+		  $('.chkProcessor:checked').each(function() {
+			  Processor.push($(this).val());
+		  });
+
+		  $('.chkBrand:checked').each(function() {
+			  Brand.push($(this).val());
+		  });
+
+		  $('.chkDepartment:checked').each(function(){
+			  Depart.push($(this).val())
+		  });
+
+		  $('.chkUnit:checked').each(function(){
+			  Unit.push($(this).val())
+		  })
+
+		  $('.chkmodel:checked').each(function(){
+			   Model.push($(this).val())
+		  })
+
+		  if(actionFromURL =='' || actionFromURL == 'AssetCount')
+			 appendCards();
+		  else
+			 BindAssetDetails(actionFromURL);
+
+		 toggleSettings();
+	});
+
+	$(document).on('click', '#tblAsset tbody tr', function () {
+		let rowData = [];
+		$(this).find('td').each(function () {
+			rowData.push($(this).text().trim());
+		});
+
+		const pattern = /^.+\/.+\/C\d{3}$/;
+		const match = rowData.find(item => pattern.test(item));
+
+		if (match) {
+			let URL = `/Dashboard/DetailPage?AssetCode=${match}`;
+			$('#assetModal iframe').attr('src', URL);
+			$('#assetModal').modal('show');
+			$('#tbtDetailDetailModal').text(`Asset Details (${match})`)
+		}
+	});
+
+</script>

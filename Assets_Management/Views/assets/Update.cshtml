@@ -1,0 +1,197 @@
+﻿@{
+    ViewData["Title"] = "Update";
+    Layout = "~/Views/Shared/ItLayout.cshtml";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/jquery/jQueryUi.css">
+<script src="~/jquery/jQueryUi.js"></script>
+<input type="hidden" id="hdnDept" />
+<div class="overflow-hidden">
+	<div class="ps-0 ">
+		<div class="" style="min-height:645px;">
+			<div class="text-black">
+				<div class="col-sm-12 row">
+					<div class="col-sm-2">
+						<div class="d-flex align-items-center flex-wrap gap-2">
+							<h4 class="m-0 flex-grow-1 fw-bold" id="heading">Asset Updation</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mt-3" id="TableContent">
+				<div class="container-fluid p-2">
+					<div id="DV_SoftData" style="height:700px;">
+						<table style="max-height:645px;" class="display nowrap custom-table table-bordered datatable" id="tblSummary">
+							<thead class="bg-light">
+								<tr id="tableHeaders" class="font_SIZE"></tr>
+							</thead>
+							<tbody id="tableBody" class="font_SIZE">
+							</tbody>
+							<tfoot id="tableFooter" style="border:none">
+							</tfoot>
+						</table>
+					</div>
+				</div>
+			</div>
+            <div class="row" id="formContent">
+               <div class="row g-3 ms-1">
+                   <div class="col-md-4">
+                       <label class="form-label fw-bold">Asset Code:</label>
+                       <input type="text" id="AssetCode" class="form-control shadow-sm" placeholder="Enter Asset Code" readonly/>
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-bold">Employee Code:</label>
+						<input type="text" class="form-control shadow-sm" id="employeeCode" placeholder="Enter Employee Code" readonly />
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-bold">Assets Type:</label>
+						<input class="form-control shadow-sm" id="AssetType" type="text" placeholder="Enter Asset Type" readonly />
+                   </div>
+               </div>
+               <div class="row g-3 mt-3 ms-1">
+                   <div class="col-md-4">
+                       <label class="form-label fw-bold">Last Patch Update:</label>
+                       <input type="date" id="LastPatch" class="form-control shadow-sm" />
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-bold">Last Anti Virus Update:</label>
+                       <input type="date" class="form-control shadow-sm" id="LastAntiVirus" />
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-bold">Last Archive:</label>
+                       <input class="form-control shadow-sm" id="LastArchive" type="date" />
+                   </div>
+               </div>
+               <div class="row mt-4">
+                   <div class="col-md-12 text-end">
+						<button class="btn btn-primary shadow-sm px-4" onclick="UpdateDetails()">Update</button>
+						<button class="btn btn-secondary shadow-sm px-4" onclick="HideForm()">Back</button>
+                   </div>
+               </div>
+            </div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function () {
+		bindAssetDetails();
+		HideForm()
+	});
+	
+	function bindAssetDetails() {
+		let URL ='/Assets/AssetUpdation';
+		$.ajax({
+			url: URL,
+			method: "GET",
+			dataType: "json",
+			success: function (data) {
+				$('#tableHeaders').empty();
+				$('#tableBody').empty();
+				$('#tableFooter').empty();
+				if ($.fn.DataTable.isDataTable('#tblSummary')) {
+					$('#tblSummary').DataTable().destroy();
+				}
+				const Headers = ["CPU_ASSET_CODE", "INSTALLED_UNIT", "USER_NAME", "DEPARTMENT", "Employee_Code", "Asset_Type","Action"];
+				Headers.forEach(header => {
+					$('#tableHeaders').append(`<th>${header}</th>`);
+				});
+				$.each(data, function (i, item) {
+					let row = `<tr class="rowHeight">`;
+					row += `<td>${item.CPU_ASSET_CODE || ""}</td>`;
+					row += `<td>${item.INSTALLED_UNIT || ""}</td>`;
+					row += `<td>${item.USER_NAME || ""}</td>`;
+					row += `<td>${item.DEPARTMENT || ""}</td>`;
+					row += `<td>${item.Employee_Code || ""}</td>`;
+					row += `<td>${item.Asset_Type || ""}</td>`;
+					row += `<td>
+								<a href="#" onclick="ShowUpdateForm(${item.Status})"
+								   class="openFormBtn"
+								   data-id="${item.Status}">
+								  <i class="fa-solid fa-pen-to-square"></i>
+								</a>
+							</td>`;
+					row += `</tr>`;
+					$("#tableBody").append(row)
+				});																	
+				$('#tblSummary').DataTable({
+					paging: true,
+					searching: true,
+					ordering: true,
+					scrollCollapse: false,
+					scrollY: "500px",
+					info: true,
+					autoWidth: false,
+					fixedHeader: true,
+					pageLength: 25,
+					columnDefs: [
+						{ targets: 0, visible: false }
+					]
+				});
+			},
+			error: function (xhr, status, error) {
+				console.error("Error fetching data:", error);
+			}
+		});
+	}
+
+    function BindDetails(ID)  
+    {  
+		console.log(ID)
+		$.ajax({
+			url: `/Assets/AssetDetalUpdation`,
+			method: "POST",  
+			dataType: "json",  
+			data: JSON.stringify({ ID: ID.toString() }),
+			contentType: "application/json",   
+			success: function (data)  
+			{  
+				let parsedData = JSON.parse(data.data);  
+				let details = parsedData[0];  
+				$("#AssetCode").val(details.CPU_ASSET_CODE || '');  
+				$("#employeeCode").val(details.Employee_Code || "");  
+				$("#AssetType").val(details.Asset_Type || "");  
+			},  
+			error: function (xhr, status, error) {  
+				console.error("Error fetching data:", error);  
+			}  
+		});  
+    }
+
+    function UpdateDetails(ID) {
+		let Payload = {
+			ID: ID,
+			Last_Archive: $('#LastArchive').val(),
+			ILast_Anti_VirusD: $('#LastAntiVirus').val(),
+			Last_Patch: $('#LastPatch').val()
+		};
+
+		$.ajax({
+			url: '/Assets/UpdateAssetDetails',
+			method: 'POST',
+			dataType: "json",
+			data: JSON.stringify(Payload),
+			contentType: "application/json",
+			success: function (data) {
+				showToast("Asset Detail Updated Successfully",'success')
+			},
+			error: function (xhr, status, error) {
+				console.error("Error:", error);
+				showToast("Failed To Update Asset Details",'error')
+			}
+	    });
+	}
+
+	function ShowUpdateForm(ID){
+		$('#TableContent').hide();
+		$('#formContent').show();
+		BindDetails(ID)
+	}
+
+	function HideForm()
+	{
+		$('#TableContent').show();
+		$('#formContent').hide();
+	}
+</script>
+
